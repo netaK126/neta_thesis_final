@@ -27,19 +27,20 @@
 \notationentry{a03}{MIP}{mixed-integer program}
 \notationentry{a05}{ReLU}{rectified linear unit}
 \notationentry{a06}{PGD}{projected gradient descent}
+\notationentry{a07}{FC}{fully connected (layer)}
 
 % ---------------- networks, inputs and perturbations ------------------
 \notationentry{b01}{$N$}{the neural network that \tool verifies}
 \notationentry{b02}{$C$}{the set of classes}
 \notationentry{b03}{$L$}{the number of layers of $N$}
 \notationentry{b04}{$w_{m,k,k'}$, $b_{m,k}$}{the weights and the bias of a neuron}
-\notationentry{b05}{$W_m$}{the weights of layer $m$; for a convolutional layer, its kernels}
+\notationentry{b05}{$W_m$}{the weights of layer $m$ (for a convolutional layer, its kernels)}
 \notationentry{b06}{$t_m$, $s_m$}{the kernel of layer $m$ is $t_m \times t_m$ wide, and it is slid in steps of a stride $s_m$}
 \notationentry{b07}{$d_m$}{the number of channels of layer $m$}
 \notationentry{b08}{$z_{m,i,j,d}$}{the neuron at the row $i$, the column $j$ and the channel $d$ of a convolutional layer}
 \notationentry{b09}{$\Npre$}{an already-verified network, which is similar to $N$}
 \notationentry{b10}{$n$}{the input dimension, the number of entries of an input}
-\notationentry{b11}{$x$, $x^{p}$, $x_k$, $x^{p}_k$}{an input and its perturbed counterpart, and their $k$th entries}
+\notationentry{b11}{$x$, $x^{p}$, $x_k$, $x^{p}_k$}{an input and its perturbed counterpart, and their $k^{\text{th}}$ entries}
 \notationentry{b12}{$P$}{a perturbation, a function of an input and a size}
 \notationentry{b13}{$e$, $\ep$}{the size of a perturbation and the maximal size allowed}
 \notationentry{b14}{$\mI_\ep(x)$}{the perturbations of $x$ up to size $\ep$}
@@ -47,13 +48,15 @@
 \notationentry{b16}{$x^{\mathrm{pre}*}$}{the optimal input of the solution of $\Npre$}
 
 % ----------------------------- the property ---------------------------
-\notationentry{c01}{$c$, $c_t$}{the source class and the target class}
+\notationentry{c01}{$c$, $c_t$}{the source class and the target class (the source class is written $c_s$ in Chapter~\ref{ch:evaluation})}
 \notationentry{c02}{$\conf{N}{x}{c}$}{the confidence of $N$ on $x$ in the class $c$}
 \notationentry{c03}{$\delta_{\max}$}{the largest confidence a network can reach}
 \notationentry{c04}{$\delta^*$}{the minimal globally robust bound}
 \notationentry{c05}{$\hat{\delta}_{c_t}$}{the maximal non-robust bound for the target class $c_t$}
 \notationentry{c06}{$\dlo$, $\dup$}{the bounds on $\hat{\delta}_{c_t}$ returned when the analysis stops early}
 \notationentry{c07}{$\delta^{\mathrm{HA}}$}{the objective of the solution the hyper-attack finds}
+\notationentry{c08}{$a^{\mathrm{pgd}}$}{the warm-start hints obtained from the hyper-attack}
+% TODO (Dana): Define $\delta_d$ in the text, where the detailed tables of Chapter~\ref{ch:evaluation} are first described (the MNIST results), and here: for a source class $c_s$, the largest confidence $\mathcal{C}(N,x,c_s)$ over the training and test inputs of the dataset, as a percentage of $\delta_{\max}$.
 
 % ------------------ neurons, bounds and the encoding ------------------
 \notationentry{d01}{$m$, $k$}{the index of a layer and of a neuron in it}
@@ -61,7 +64,7 @@
 \notationentry{d03}{$\hat{z}^{p}_{m,k}$, $z^{p}_{m,k}$}{the same, of the perturbed copy}
 \notationentry{d04}{$[l_{m,k}, u_{m,k}]$}{the bound on $\hat{z}_{m,k}$}
 \notationentry{d05}{$[l^{p}_{m,k}, u^{p}_{m,k}]$}{the bound on $\hat{z}^{p}_{m,k}$}
-\notationentry{d06}{$a_{m,k}$, $a^{p}_{m,k}$}{the binary of the exact encoding of each copy, $1$ when the neuron is active and $0$ when it is inactive}
+\notationentry{d06}{$a_{m,k}$, $a^{p}_{m,k}$}{the binary variable of the exact encoding of each copy, $1$ when the neuron is active and $0$ when it is inactive}
 \notationentry{d07}{$\varphi$}{the mixed-integer program \tool constructs}
 \notationentry{d08}{$\varphi_{\mathrm{in}}$, $\varphi_{\mathrm{dep}}$}{its input constraints and its dependency constraints}
 \notationentry{d09}{$\bowtie$}{the relation of a dependency constraint, one of $\geq$, $\leq$ and $=$}
@@ -85,6 +88,6 @@
 \notationentry{h02}{$[l^{p,\mathrm{pre}}_{m,k}, u^{p,\mathrm{pre}}_{m,k}]$}{the verified bound of $\Npre$ on the perturbed copy}
 \notationentry{h03}{$[d^{\downarrow}_{m,k}, d^{\uparrow}_{m,k}]$}{the interval bounding how far the pre-activations of $N$ stray from those of $\Npre$}
 \notationentry{h04}{$\hat{z}^{\Npre}_{m,k}$}{the pre-activation of $\Npre$ at $x^{\mathrm{pre}*}$}
-\notationentry{h05}{$\tilde{I}_{m,k}$}{the estimate of the pre-activation of $N$, obtained from $\hat{z}^{\Npre}_{m,k}$ and the stray}
+\notationentry{h05}{$\tilde{I}_{m,k}$}{the estimate of the pre-activation of $N$, obtained from $\hat{z}^{\Npre}_{m,k}$ and $[d^{\downarrow}_{m,k}, d^{\uparrow}_{m,k}]$}
 \notationentry{h06}{$\rho_{m,k}$}{the fraction of $\tilde{I}_{m,k}$ consistent with the phase of $\Npre$}
 \notationentry{h07}{$a^{\mathrm{pre}}_{m,k}$}{the hint the transfer mode sets for the neuron}

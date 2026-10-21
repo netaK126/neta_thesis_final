@@ -7,15 +7,10 @@
 %
 % The conclusions are the ones of the Conclusion section of the paper.
 % =====================================================================
-\chapter{Conclusions}
+\chapter{Conclusion}
 \label{ch:discussion}
 
-In this chapter, we conclude. We begin with what this thesis presents
-and what its results show, and close with the directions we leave
-open.
 
-\section{Conclusions}
-\label{sec:discussion-conclusions}
 
 We present \tool, a verifier that accelerates constraint-solver-based
 global robustness verification and is the first to support its
@@ -24,30 +19,24 @@ perturbation-difference intervals and zonotope bounds, relaxes neurons
 with a novel conditional-triangle relaxation, and, in transfer mode,
 reuses a prior verification through difference bounds and warm-start
 hints. \tool speeds up \baseline by $7.6\times$ on
-average, and by $12.4\times$ with transfer. On the
+average, and by $12.4\times$ with transfer, on the instances
+where at least one verifier terminates. On the
 hardest tasks, where all verifiers time out, it returns bounds
 $19.9\times$ tighter, and $20.9\times$
 with transfer. Finally, our results show that the gains of \tool carry
-over to networks beyond the reach of \baseline, a network with
-$3\times$ more neurons than the largest network of \baseline and a
-network with 500 neurons in one hidden layer.
+over to larger networks, a network with
+over $3\times$ more neurons than the largest network of \baseline and a
+network with 500 neurons in one hidden layer, on which the bounds of
+\baseline remain over $97\%$ of $\delta_{\max}$ apart at the timeout. We identify several future directions.
 
-\section{Future Work}
-\label{sec:discussion-future-work}
-
-\tool makes global robustness verification markedly faster, and on
-the hardest tasks, where every verifier runs out of time and speed no
-longer tells them apart, it returns the tighter bound. Global
-robustness verification nonetheless remains an open and active
-problem: there is always room for a faster analysis and a tighter
-bound, and for carrying the guarantee to architectures and domains
-beyond those we study here. We discuss several such directions below.
-
-\subsection{Small Perturbations}
+\section{Small Perturbations}
 \label{sec:future-small-perturbations}
+%
+% TODO (Dana): Neta, could you shorten each of the three directions to one short paragraph: the problem, the idea, and what is left open? The longer they are, the more the examiners will ask about them in the defense, so keep only what you want to expand on there.
+
 
 The initial intuition is that small perturbations would be easier to verify.
-However, small perturbations can be very difficult to do so. 
+However, small perturbations can be very difficult to do so.
 For examle, under an $\ell_\infty$ perturbation with a very
 small $\ep$, every perturbed neuron sits within a hair of its clean
 counterpart: the difference intervals
@@ -64,9 +53,9 @@ conditions its triangle on the other copy's binary $a^{p}_{m,k}$, so
 the perturbed copy keeps its binary exactly where the clean one gives
 its up. The program still pays for two copies' worth of unstable
 neurons in order to encode a second copy that has almost nothing left
-to say. Moreover, as we show below, a small $\ep$
+to say. Moreover,  a small $\ep$
 pins $\hat{\delta}_{c_t}$ near zero, so the hyper-adversarial attack
-almost never returns a feasible pair, the search starts with no lower
+may not return a feasible pair, the search then starts with no lower
 bound, and the solver is left to bring $\dup$ down on its own.
 
 We can profit from the same closeness that causes the difficulty:
@@ -105,16 +94,20 @@ whose two ends mention the clean copy alone. Rearranging them,
   \qquad\text{for every } k\neq c_t.
   \label{eq:future-one-copy}
 \end{equation}
+Condition~\eqref{eq:future-one-copy} is necessary for
+$\conf{N}{x^{p}}{c_t}>0$ but not sufficient. Encoding it in place of
+the perturbed copy over-approximates the set of feasible pairs, so the
+upper bound $\dup$ remains sound, while a feasible solution need not
+correspond to a real pair $(x,x^{p})$. How much precision this costs
+for a small $\ep$ is left for future research.
 
-\subsection{Verifying New Perturbations in Global Robustness Settings}
+\section{Verifying New Perturbations in Global Robustness Settings}
 \label{sec:future-perturbations}
 
 Today, \tool, and the other verifiers we compare it to, support only a handful
-of perturbations. However, there are many more perturbations that are of 
-interest to the research community, and we discuss below how \tool can be 
+of perturbations. However, there are many more perturbations that are of
+interest to the research community, and we discuss below how \tool can be
 extended to support them as well.
-
-
 
 \paragraph{$\ell_0$ perturbation.}
 An $\ell_0$ perturbation allows up to $t$ pixels to be modified within
@@ -184,8 +177,9 @@ budget once, at that layer, and from there on the propagation of
 Section~\ref{sec:blend-pert-diff} is interval arithmetic over each
 neuron separately, so two neurons may both sit at their worst case
 although no single perturbation can place them there together: the
-budget they share is gone. The zonotope cannot restore it either, as
-it is a linear image of a box and the $\ell_1$ ball is not. Carrying a
+budget they share is gone. The zonotope cannot represent the
+budget exactly either, as
+it is a linear image of a box and the $\ell_1$ ball is not (for $n\geq 3$). Carrying a
 shared budget through the network, rather than spending it at the
 first layer, is what this direction needs and what we leave open.
 
@@ -212,13 +206,13 @@ The difficulty is again in the bounds, and it is the same difficulty.
 Cauchy--Schwarz settles the first layer, and past it the propagation
 treats each neuron's difference on its own, as though every one of
 them could reach its worst case at once, which no perturbation of
-norm $\ep$ can arrange. Here too the zonotope is of no help, being a
-linear image of a box. The two norms therefore leave the same
+norm $\ep$ can arrange. Here too the zonotope cannot represent the budget exactly, as the
+$\ell_2$ ball is not a linear image of a box. The two norms therefore leave the same
 question: how to carry one shared budget through a network whose
 abstractions are built to carry a box. We regard this as the main
 obstacle to supporting them and leave it to future research.
 
-\subsection{Training Networks for Verifiability}
+\section{Training Networks for Verifiability}
 \label{sec:future-training}
 
 Every direction above takes the network as given. The cost of the
@@ -239,14 +233,15 @@ functions whose slope and intercept are then retrained, carrying
 complete verification to far larger networks.
 
 To the best of our knowledge, this question has been asked only for
-local robustness, never for global robustness, and the two differ in
-what they ask of a neuron. Our bounds are taken over all of
+local robustness, never for exact verification of global robustness, and the two differ in
+what they ask of a neuron.%
+% TODO (Dana): GloRo nets~\citep{leino2021gloro}, cited in Related Work, train for a (Lipschitz-based) global robustness notion with built-in certification. Mention them here and say why they differ, or keep the qualifier.
+ Our bounds are taken over all of
 $[0,1]^n$, so a neuron is stable only if its pre-activation holds one
 sign over the entire domain. That target is not merely harder but
 bounded: were every
 neuron stable over the whole domain, no ReLU would ever switch and the
-network would be an affine map, so full stability costs the classifier
-everything it has. What to ask for is a frontier rather than a goal:
+network would be an affine map, so full stability reduces the classifier to a linear one. What to ask for is a frontier rather than a goal:
 how many neurons can be decided over the whole domain before the
 accuracy goes.
 
@@ -255,7 +250,7 @@ neuron to be stable, only near-decided:
 Section~\ref{sec:blend-condtri} relaxes it once the normalized
 triangle area $\tfrac{u\,\lvert l\rvert}{2(u-l)}$ falls below $\tau$,
 so a neuron whose pre-activation barely crosses zero is unstable and
-yet costs nothing. Training against that area rather than against the sign asks
+yet costs no binary variable. Training against that area rather than against the sign asks
 for less, is continuous where the sign is not, and optimizes the
 quantity our relaxation actually tests. Whether it also buys back the
 accuracy that whole-domain stability would cost is left open, as is

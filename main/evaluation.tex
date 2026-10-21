@@ -34,14 +34,21 @@ MIPGap${=}0.01$, MIPFocus${=}3$, Threads${=}32$, Seed${=}4$, and
 Cutoff${=}\delta^{\mathrm{HA}}$, the bound of the hyper-adversarial
 attack. For the contrast perturbation, which multiplies two variables,
 we set NonConvex${=}2$. For the conditional-triangle relaxation, we
-set $\tau{=}0.5$.
+set $\tau{=}0.5$. The results of \baseline are obtained by our
+implementation with all of \tool's techniques disabled, so both
+verifiers share the Gurobi parameters and the hyper-adversarial attack.
+%
+% TODO (Dana): Neta, a few things in the code: (1)~$W_1(T-I)$ (\texttt{geometric\_diff\_map\_*}, \texttt{perturbation\_intervals.jl}:123--160) works only for fully connected networks and only with \texttt{-{}-geometric\_intervals}. Can you fold $T-I$ into the first convolution, so it also works for \emph{conv1} and \emph{conv4}, and turn it on in all translation and rotation runs? (2)~In \texttt{compute\_diff\_bounds\_zonotope} (\texttt{perturbation\_intervals.jl}:750), when a neuron may be inactive in one of the networks, the code applies the zonotope ReLU to $\hat z^{N}-\hat z^{\Npre}$. But the difference after the ReLU is $\relu(\hat z^{N})-\relu(\hat z^{\Npre})$, which can be negative, so the bounds come out too tight. Can you replace it with $[\min(0,l_d),\max(0,u_d)]$, as the interval code does? The test \texttt{review\_tests/test\_diff\_zonotope\_relu.jl} shows the problem. (3)~The post-activation difference interval is added only to variables named \texttt{x\_rect\_layerCount} (\texttt{perturbation\_intervals.jl}:252). Relaxed neurons are named \texttt{x\_rect\_btpr\_advstd\_\dots}, so they get none. Can you match both names? (4)~The warm start reads $\Npre$'s values from its MIP solution and uses $l/2$ for inactive neurons (\texttt{help\_functions.jl}:304--306). Can you save $x^{\mathrm{pre}*}$ and compute $\Npre$'s pre-activations on it instead?
+
 
 \subsection{Experimental Setup}
 \label{sec:evaluation-setup}
 
 
 Experiments ran on a dual AMD EPYC 7713 server with 2\,TB RAM and eight A100 GPUs (Ubuntu 20.04.1).
-Table~\ref{tab:networks} summarizes the networks and the dataset each one is trained on. The networks marked in the PGD column are PGD-trained~\cite{madry2018}.
+Table~\ref{tab:networks} summarizes the networks and the dataset each one is trained on. The \#Neurons column counts the hidden ReLU neurons, and the Architecture column counts the output layer as an FC layer. For example, 3$\times$50 has two hidden layers of 50 neurons and an output layer.%
+% TODO (Dana): verify HAR: by this convention, 1$\times$500 (one hidden layer of 500 and an output layer) is 2 FC layers, not 1.
+ The networks marked in the PGD column are PGD-trained~\cite{madry2018}.
 We use two network architectures following \baseline (3$\times$50 and \emph{conv1}),
 two wider and larger networks, 3$\times$100 and \emph{conv4}
 (with over $3\times$ more neurons than \baseline's largest network \emph{conv2}),
@@ -49,9 +56,10 @@ and the HAR network of~\citet{paulsen2020reludiff}. For each network, $\Npre$ is
 network and $N$ its revised version. For HAR, $\Npre$ is taken from~\citet{paulsen2020reludiff}
 and $N$ is its 8-bit quantization, as is common in differential
 verification~\cite{paulsen2020reludiff,paulsen2020neurodiff,giacobbe2020bits}.
-For the rest, we train $\Npre$ with Adam and then fine-tune it with SGD to obtain $N$~\cite{keskar2017,zeng2022}.
+For the rest, we train $\Npre$ with Adam and then fine-tune it with a single iteration of SGD to obtain $N$~\cite{keskar2017,zeng2022}.
 
-\begin{table}[H]
+
+\begin{table}[t]
   \centering
   \caption{Networks used in our evaluation.}
   \label{tab:networks}
@@ -67,7 +75,7 @@ For the rest, we train $\Npre$ with Adam and then fine-tune it with SGD to obtai
     \multirow{2}{2.2cm}{Fashion-MNIST} & 3$\times$50 & 3 FC layers & 100 & \checkmark \\
                                        & \emph{conv1} & 2 conv (stride 3) + 2 FC & 550 & \\
     \midrule
-    CIFAR-10 & \emph{conv4} & 2 conv (stride 1) + 2 FC & 8910 & \checkmark \\
+    CIFAR-10 & \emph{conv4} & 2 conv (stride 1 and 4) + 2 FC & 8910 & \checkmark \\
     \midrule
     HAR & 1$\times$500 & 1 FC layer & 500 & \\
     \bottomrule
@@ -84,23 +92,25 @@ We compare \tool, \tool in transfer mode, and \baseline across all networks, per
 and different source--target class pairs $(c_s, c_t)$. For each, we measure the execution time (minutes),
 and the analysis tightness: the difference $\delta_u-\delta_l$ between the upper and lower bounds
 of $\delta_{c_t}$ as a percentage of $\delta_{\max}$, from $0$ (when the bound is exact) to $100$.
-We focus on the challenging tasks whose verification takes over 15 minutes.
+%
+% TODO (Dana): this filter is not applied: in 30 of the 86 rows of the solved tables, all three verifiers finish in under 15 minutes, and these rows are in the averages. Apply the filter or drop the sentence.
+
 The following sections plot the time as bars and the tightness as a black line.
 
 We report the comparison in four forms, which differ in what they
-measure and in which instances they cover. The execution-time figures
+measure and in which instances they cover. Figures~\ref{fig:n2-time-app} and~\ref{fig:n2-time-app-2}
 show, for each network, perturbation and class pair, the time of the
 three verifiers as bars and the tightness of their analysis as a black
-line, a row of class pairs per figure. The bound-difference figures
+line, a box per perturbation and group of networks. Figures~\ref{fig:n2-bounddiff-app}--\ref{fig:n2-bounddiff-app-3}
 show the tightness alone, on the hardest instances, where all three
 verifiers reach the three-hour timeout and the time no longer
-separates them. The per-cell tables report the individual experiments,
-and they come in two kinds: the timeout tables, which give the bounds
+separates them. The detailed tables report the individual experiments,
+and they come in two kinds: the timeout tables (Tables~\ref{tab:mnist-timeout}, \ref{tab:fashion-timeout}, \ref{tab:cifar-timeout} and~\ref{tab:har-timeout}), which give the bounds
 $\dlo$ and $\dup$ of each verifier and the ratio of the bound
 difference of \baseline to the one of \tool, where a ratio above $1$
-means \tool is tighter; and the solved tables, which give the
+means \tool is tighter; and the solved tables (Tables~\ref{tab:mnist-solved}, \ref{tab:fashion-solved} and~\ref{tab:cifar-solved}), which give the
 execution times and the speedups on the instances where at least one
-verifier finishes. The last table reports the Wilcoxon signed-rank
+verifier finishes. Table~\ref{tab:wilcoxon} reports the Wilcoxon signed-rank
 test over these per-instance ratios.
 
 The results show that, on the class pairs where at least one verifier solves, \tool computes its
@@ -115,14 +125,15 @@ reports how many neurons are relaxed with the conditional triangle, as a percent
 the neurons in both network copies,
 and the precision loss, i.e., how much \tool's lower bound $\delta_l$ is higher than \baseline's,
 as a percentage of $\delta_{\max}$. The results show that \tool relaxes many neurons,
-which speeds up the search at a small precision loss, and that transfer mode relaxes far more
-because reusing $\Npre$'s verified bounds tightens $N$'s.
+which speeds up the search at a small precision loss.
 \baseline is better in two cases. Under $\ell_\infty$, the per-pixel difference
 spans all of $[-\varepsilon,\varepsilon]$, so \tool's abstractions barely tighten the
 bounds and their overhead can make it slower. Under the contrast perturbation,
-\tool's bound on \emph{conv1} is looser, as its relaxation over-approximates it.
+\tool's bound on \emph{conv1} is looser, as its relaxation over-approximates it.%
+% TODO (Dana): Neta, in the current tables no $\ell_\infty$ instance shows \baseline faster or tighter. \baseline is faster mainly on MNIST \emph{conv1} under occlusion and translation (Table~\ref{tab:mnist-solved}). Can you update these two cases?
 
-\begin{table}[H]
+
+\begin{table}[t]
 \centering
 \caption{Percentage of relaxed neurons and the resulting precision
 loss, averaged over all experiments.}
@@ -148,21 +159,24 @@ HAR 1$\times$500 & 0.0\% & $-0.0$\% & 0.0\% & $-0.2$\% \\
 \bottomrule
 \end{tabular}
 \end{table}
+%
+% TODO (Dana): Neta, \tool's rows at $\tau{=}0.2$ and $\tau{=}0.3$ are identical. Is it because no neuron has a triangle error between $0.2$ and $0.3$? If so, can you say so in the text?
+
 
 \input{main/evaluation-results}
 
 \section{Statistical Significance}
 \label{sec:evaluation-significance}
 
-The Wilcoxon signed-rank test shows that \tool, with and without
-transfer, significantly outperforms \baseline in both tightness and
-speed, with $p{<}10^{-4}$. Table~\ref{tab:wilcoxon} reports the four
+In this section, we test whether the improvements of \tool over \baseline are statistically significant. We use the Wilcoxon signed-rank test, which checks, over pairs of measurements on the same instances, whether one verifier is consistently better than the other.  Table~\ref{tab:wilcoxon} reports the four
 tests: speed on the instances where at least one verifier finishes,
 and tightness on the instances where all verifiers reach the timeout,
-each for \tool and for \tool in transfer mode.
+each for \tool and for \tool in transfer mode. The results show that \tool, with and without transfer, significantly outperforms \baseline in both tightness and speed, with $p{<}10^{-4}$.%
+% TODO (Dana): Neta, for transfer speed $n{=}87$, but Tables~\ref{tab:mnist-solved}, \ref{tab:fashion-solved} and~\ref{tab:cifar-solved} together have $86$ rows. How is $n$ counted? Also, some rows share the same network and $c_s$, and the \emph{conv4} rows repeat at several $\tau$ values, so they are not independent. Could you run the test on one row per network, perturbation and $c_s$, at $\tau{=}0.5$ only?
+
 
 % BEGIN AUTO: aaai_wilcoxon_table
-\begin{table}[H]
+\begin{table}[t]
 \centering
 \small
 \setlength{\tabcolsep}{4pt}
@@ -170,10 +184,10 @@ each for \tool and for \tool in transfer mode.
 \toprule
 metric & verifier & $n$ & $W^{+}$ & $W^{-}$ & $z$ & $p$ \\
 \midrule
-tightness & \tool          & 49 & 1192 &   33 & 5.77 & $7.9\cdot 10^{-9}$ \\
-tightness & \tool transfer & 43 &  919 &   27 & 5.39 & $7.1\cdot 10^{-8}$ \\
-speed     & \tool          & 84 & 3471 &   99 & 7.52 & $5.5\cdot 10^{-14}$ \\
-speed     & \tool transfer & 87 & 3798 &   30 & 7.98 & $1.5\cdot 10^{-15}$ \\
+tightness & \tool          & 49 & 1192 & 33 & 5.77 & $7.9\cdot 10^{-9}$ \\
+tightness & \tool transfer & 43 & 919 & 27 & 5.39 & $7.1\cdot 10^{-8}$ \\
+speed     & \tool          & 84 & 3471 & 99 & 7.52 & $5.5\cdot 10^{-14}$ \\
+speed     & \tool transfer & 87 & 3798 & 30 & 7.98 & $1.5\cdot 10^{-15}$ \\
 \bottomrule
 \end{tabular}
 \caption{Two-sided Wilcoxon signed-rank tests of \tool and \tool transfer
@@ -182,7 +196,7 @@ against \baseline.}
 \end{table}
 % END AUTO: aaai_wilcoxon_table
 
-\FloatBarrier
+
 
 \section{Ablation Study}
 \label{sec:evaluation-ablation}
@@ -191,7 +205,12 @@ To evaluate the contribution of each component of \tool, we perform an
 ablation study on the largest network, CIFAR-10 \emph{conv4}, removing
 one component at a time. We run it at $\tau{=}0.5$, on the twelve
 experiments of occlusion (14,14,9) and patch (1,14,14,3) with
-$c_s{\in}\{0,2\}$ and $c_t{\in}\{1,3,4\}$.
+$c_s{\in}\{0,2\}$ and $c_t{\in}\{1,3,4\}$. Each experiment runs
+once. The time is the mean over the twelve experiments, where an
+experiment that reaches the timeout counts as $180$
+minutes.%
+% TODO (Dana): verify both statements.
+
 Table~\ref{tab:ablation-cifar-cnn5} provides the results. It shows,
 for each variant, the execution time, how many of the twelve
 experiments finish before the three-hour timeout, and the percentage
@@ -199,14 +218,14 @@ of relaxed neurons, which indicates what each component leaves for the
 relaxation to work with.
 
 The results show that the relaxation have the biggest impact on whether
-the analysis terminates or not. Without the relaxation ($\tau{=}0$), 
+the analysis terminates or not. Without the relaxation ($\tau{=}0$),
 none of the twelve experiments finishes, in both modes.
 Without the zonotope, no neuron has bounds tight enough to be relaxed,
-which indicates how much the zonotope tightens them. These experiemnts 
-highlight the significance of the relexations for the verification process, 
-especially on large networks as \emph{conv4}. 
-Under transfer, the zonotope results show an experiemnt where we removed the 
-zonotope between $\Npre$ to $N$ to evaluate its contribution. 
+which indicates how much the zonotope tightens them. These experiemnts
+highlight the significance of the relexations for the verification process,
+especially on large networks as \emph{conv4}.
+Under transfer, the zonotope results show an experiemnt where we removed the
+zonotope between $\Npre$ to $N$ to evaluate its contribution.
 There, $48.3\%$ of the neurons are still relaxed,
 and still no experiment finishes.
 The perturbation-difference interval helps \tool terminate without
@@ -221,57 +240,32 @@ the mode that reuses the solution of $\Npre$. Without it, transfer
 mode takes $87.9$ minutes on average, $1.1\times$ longer. Overall,
 transfer mode finishes eight of the twelve experiments, at $81.1$
 minutes on average, where \tool finishes one and takes $177$ minutes.
+%
+% TODO (Dana): verify: the four $\tau{=}0.5$ transfer cells of these experiments in Tables~\ref{tab:cifar-timeout} and~\ref{tab:cifar-solved} (115.2, 13.3, 180 and 42.9 minutes) average $87.9$ minutes, not $81.1$. Check that the ablation and the tables come from the same runs.
+
 
 \input{main/evaluation-ablation}
 
-\FloatBarrier
+
 
 \section{Hyperparameters}
 \label{sec:evaluation-hyperparameters}
 
-\tool has a single hyperparameter: the threshold $\tau$ of the
-conditional-triangle relaxation, which decides how many of the neurons
-the relaxation covers. To set it, we ran the analysis at
-$\tau{\in}\{0, 0.2, 0.3, 0.5, 0.7\}$, where $\tau{=}0$ relaxes no
-neuron and leaves the encoding exact, and chose $\tau{=}0.5$.
-Figure~\ref{fig:n2-tau} reports, for each of the four cells and for
-both modes, the precision loss, the execution time and the tightness
-$\dup - \dlo$ at each of these thresholds.
-
-The higher $\tau$ is, the more neurons are relaxed. The program then
-has fewer integer variables to branch on, so the verification time
-falls and the bound difference $\dup - \dlo$ narrows, but the lower
-bound $\dlo$ moves away from the exact one and precision is lost. The
-lower $\tau$ is, the other way about: the bound stays precise and the
-analysis runs longer. The figure bears this out in all four cells.
-
-All the quantities below are percentages of $\delta_{\max}$. At
-$\tau{=}0$ nothing is relaxed: the precision loss is zero, every run
-of every cell reaches the three-hour timeout, and $\dup - \dlo$ is at
-its widest, $44\%$--$91\%$. The step to $\tau{=}0.2$ narrows
-$\dup - \dlo$ to $13\%$--$30\%$ at a precision loss of $15\%$--$41\%$,
-yet buys no time at all: every run still times out. At $\tau{=}0.3$
-transfer mode finishes two cells, in $92$ and $128$ minutes, with
-$\dup - \dlo$ at $2\%$--$3\%$, while \tool alone still times out
-everywhere, at $16\%$--$25\%$. At $\tau{=}0.5$ transfer finishes three
-cells, in $13$ to $115$ minutes, with $\dup - \dlo$ at or below $1\%$
-in three of them, against $5\%$--$18\%$ for \tool alone. At
-$\tau{=}0.7$ every cell finishes, under ten minutes with transfer and
-$29$ to $133$ without, and $\dup - \dlo$ is under $6\%$ throughout --
-but the precision loss reaches $35\%$--$60\%$ for \tool and
-$41\%$--$64\%$ with transfer.
-
-These levels fix the choice. $\tau{=}0.2$ gives away up to $41\%$ of
-$\delta_{\max}$ and finishes nothing; $\tau{=}0.3$ terminates only
-under transfer, leaving \tool alone no better off. $\tau{=}0.5$ is the
-first threshold useful in both modes, and it leaves a larger one
-almost nothing to tighten. $\tau{=}0.7$ does finish the remaining
-cells, but at the steepest precision cost of the four, spending it on
-a bound that is already tight. We therefore use $\tau{=}0.5$
-throughout.
+In this section, we study the relaxation threshold $\tau$, \tool's
+single hyperparameter: a higher $\tau$ relaxes more neurons, which
+shortens the analysis but loses precision. We run \tool, with and
+without transfer, at $\tau\in\{0,0.2,0.3,0.5,0.7\}$ on CIFAR-10
+\emph{conv4} under patch (1,14,14,3) and occlusion (14,14,9), with
+$c_s\in\{0,2\}$, and measure the precision loss, the execution time and
+the tightness $\dup-\dlo$. Figure~\ref{fig:n2-tau} shows the results.
+Up to $\tau=0.2$, no run finishes within the timeout. At $\tau=0.3$,
+only transfer mode finishes, on three instances. At $\tau=0.5$, both
+modes finish, and with transfer $\dup-\dlo$ is at most $1\%$ in three
+instances. At $\tau=0.7$, every instance finishes, but the precision
+loss reaches $64\%$ of $\delta_{\max}$. We therefore use $\tau=0.5$.
 
 % BEGIN AUTO: aaai_n2_tau_tradeoff
-\begin{figure}[H]
+\begin{figure}[t]
 \centering
 % Three bands are cropped off the drawing and set here instead, because
 % everything inside it is one size and scaling cannot enlarge a part of
@@ -326,7 +320,7 @@ filled: proved optimal\quad hollow: reached the timeout\par}
   \node[anchor=south] at (0.8548,1.015) {$\delta_u-\delta_l$ (\%$\delta_{\max}$)};
 \end{scope}
 \end{tikzpicture}
-\caption[Precision loss, time and tightness per threshold $\tau$]{Precision loss, execution time and analysis tightness $\delta_u-\delta_l$ per relaxation threshold $\tau$, on the cells run at more than one threshold. Every row is CIFAR-10 \emph{conv4} and carries its source class $c_s$; the upper two rows are patch (1,14,14,3) and the lower two are occlusion (14,14,9).}
+\caption{Precision loss, execution time and tightness per threshold $\tau$ on CIFAR-10 \emph{conv4} (top two rows: patch, bottom two rows: occlusion).}
 \label{fig:n2-tau}
 \end{figure}
 % END AUTO: aaai_n2_tau_tradeoff

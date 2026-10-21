@@ -22,8 +22,8 @@ analysis tightness as a black line, a box per perturbation and group of networks
 Figures~\ref{fig:n2-bounddiff-app},~\ref{fig:n2-bounddiff-app-2}
 and~\ref{fig:n2-bounddiff-app-3} show the analysis tightness on the instances where all
 three verifiers reach the timeout. The results show that
-\tool achieves tighter bounds than \baseline on these instances as well, and transfer mode further improves them.
-The individual experiments behind these figures are in the per-cell tables:
+\tool achieves tighter bounds than \baseline on these instances as well. Transfer mode improves them further on CIFAR-10 \emph{conv4}, where the average $\delta_u{-}\delta_l$ ratio grows from $3\times$ to $7.5\times$. On the other networks the two modes are close: $27.4\times$ and $27.5\times$ on MNIST, $1.7\times$ in both modes on Fashion-MNIST, and $65.8\times$ and $65.6\times$ on HAR.
+The individual experiments behind these figures are in the detailed tables:
 Tables~\ref{tab:mnist-timeout} and~\ref{tab:mnist-solved} for MNIST,
 Tables~\ref{tab:fashion-timeout} and~\ref{tab:fashion-solved} for Fashion-MNIST,
 Tables~\ref{tab:cifar-timeout} and~\ref{tab:cifar-solved} for CIFAR-10,
@@ -105,7 +105,7 @@ and Table~\ref{tab:har-timeout} for HAR.
 
 \input{graphics/fig_bd_c1f_merged}
 
-\caption[Tightness on the hardest instances: HAR, CIFAR-10, MNIST 3$\times$100 and Fashion-MNIST]{Analysis tightness $\delta_u-\delta_l$ on the hardest instances, where all three approaches reach the three-hour timeout, on HAR 1$\times$500, CIFAR-10 \emph{conv4} and MNIST 3$\times$100, and on Fashion-MNIST 3$\times$50 and \emph{conv1}.}
+\caption[Tightness on the hardest instances: HAR, CIFAR-10, MNIST 3$\times$100 and Fashion-MNIST]{Analysis tightness $\delta_u-\delta_l$ on the hardest instances, where all three approaches reach the timeout (five hours on MNIST 3$\times$100 with $c_s{\in}\{0,4\}$, three hours elsewhere), on HAR 1$\times$500, CIFAR-10 \emph{conv4} and MNIST 3$\times$100, and on Fashion-MNIST 3$\times$50 and \emph{conv1}.}
 \label{fig:n2-bounddiff-app}
 \end{figure}
 
@@ -155,13 +155,17 @@ and Table~\ref{tab:har-timeout} for HAR.
 
 % END AUTO: aaai_n2_bounddiff_appendix
 
-\FloatBarrier
+
 
 
 \subsection{MNIST}
 \label{sec:evaluation-results-mnist}
 
-We next report the individual results on MNIST. Each instance shows the bounds $\delta_l$ and $\delta_u$ as percentages of $\delta_{\max}$ and the execution time in minutes. For instances where all verifiers reach the solver timeout, the last two columns report the $\delta_u{-}\delta_l$ ratio, $\frac{\delta_u^{\baseline}-\delta_l^{\baseline}}{\delta_u-\delta_l}$: above $1$ the verifier is tighter than \baseline. Table~\ref{tab:mnist-timeout} reports the $\delta_u{-}\delta_l$ ratios on instances where all verifiers reach the timeout, and Table~\ref{tab:mnist-solved} reports the speedups on instances where at least one verifier finishes, for architectures 3$\times$50, 3$\times$100, and \emph{conv1}. The results show that \tool achieves the largest improvements under occlusion: the $\delta_u{-}\delta_l$ ratios reach $261.2\times$ under occlusion $(3,3,5)$, in both modes, and the speedups reach $102.6\times$, and $115.4\times$ with transfer, under occlusion $(1,1,5)$.
+In this section, we report the individual results on MNIST. Each instance shows the bounds $\delta_l$ and $\delta_u$ as percentages of $\delta_{\max}$ and the execution time in minutes. For instances where all verifiers reach the solver timeout, the last two columns report the $\delta_u{-}\delta_l$ ratio, $\frac{\delta_u^{\baseline}-\delta_l^{\baseline}}{\delta_u-\delta_l}$: above $1$ the verifier is tighter than \baseline.%
+% TODO (Dana): The tables print $\delta_d$, which is never defined: define it here or drop it. Also state that each row averages over the targets $c_t$.
+ Table~\ref{tab:mnist-timeout} reports the $\delta_u{-}\delta_l$ ratios on instances where all verifiers reach the timeout, and Table~\ref{tab:mnist-solved} reports the speedups on instances where at least one verifier finishes, for architectures 3$\times$50, 3$\times$100, and \emph{conv1}. The results show that \tool achieves the largest improvements under occlusion: the $\delta_u{-}\delta_l$ ratios reach $261.2\times$ under occlusion $(3,3,5)$, in both modes, and the speedups reach $102.6\times$, and $115.4\times$ with transfer, under occlusion $(1,1,5)$.%
+% TODO (Dana): The 3$\times$100 rows with $c_s{\in}\{0,4\}$ ran with a 300-minute timeout, not three hours, and they enter the average $27.4\times$. Rerun them at three hours or state the timeout per row.
+
 
 % BEGIN AUTO: aaai_safe_wide_n2_appendix_tables
 % auto-generated: archs=['3x50', '3x100', 'cnn1'], dataset=mnist, total_cell_rows=669
@@ -172,7 +176,7 @@ We next report the individual results on MNIST. Each instance shows the bounds $
 \multirow{2}{*}{model} & \multirow{2}{*}{pert (size)} & \multirow{2}{*}{$\tau$} & \multicolumn{3}{c|}{\baseline} & \multicolumn{3}{c|}{\tool} & \multicolumn{3}{c|}{\tool transfer} & \multirow{2}{*}{\shortstack{$\delta_u{-}\delta_l$ ratio\\\tool}} & \multirow{2}{*}{\shortstack{$\delta_u{-}\delta_l$ ratio\\transfer}} \\
  &  &  & $\delta_l$\% & $\delta_u$\% & $t$ & $\delta_l$\% & $\delta_u$\% & $t$ & $\delta_l$\% & $\delta_u$\% & $t$ &  &  \\}
 
-\begin{table}[H]
+\begin{table}[t]
 \centering
 \small
 \setlength{\tabcolsep}{3pt}
@@ -230,7 +234,7 @@ $c_s{=}2$ & brightness (0.25) & $0.5$ & 24 & 93 & 180 & 30 & 87 & 180 & 35 & 87 
 % END AUTO: aaai_safe_wide_n2_appendix_tables
 
 % BEGIN AUTO: aaai_safe_wide_n2_solved_tables
-\begin{table}[H]
+\begin{table}[t]
 \centering
 \small
 \setlength{\tabcolsep}{3pt}
@@ -293,13 +297,13 @@ $\delta_d{=}27\%$ & occlusion (5,5,5) & $0.5$ & 14 & 14 & 13.1 & 14 & 14 & 1.5 &
 
 % END AUTO: aaai_safe_wide_n2_solved_tables
 
-\FloatBarrier
+
 
 
 \subsection{Fashion-MNIST}
 \label{sec:evaluation-results-fashion}
 
-We next report the individual results on Fashion-MNIST. Table~\ref{tab:fashion-timeout} reports the $\delta_u{-}\delta_l$ ratios on instances where all verifiers reach the timeout, and Table~\ref{tab:fashion-solved} reports the speedups on instances where at least one verifier finishes, for 3$\times$50 and \emph{conv1}. The results show that \tool's advantage is consistent across datasets, with the largest speedups again under occlusion $(3,3,5)$, up to $38.4\times$ and $35.8\times$ with transfer.
+In this section, we report the individual results on Fashion-MNIST. Table~\ref{tab:fashion-timeout} reports the $\delta_u{-}\delta_l$ ratios on instances where all verifiers reach the timeout, and Table~\ref{tab:fashion-solved} reports the speedups on instances where at least one verifier finishes, for 3$\times$50 and \emph{conv1}. The results show that  the largest speedups are again under occlusion $(3,3,5)$, up to $38.4\times$ and $35.8\times$ with transfer. On the instances where all verifiers reach the timeout, the $\delta_u{-}\delta_l$ ratios are between $0.9\times$ and $1.1\times$ on 3$\times$50 and between $2.2\times$ and $2.4\times$ on \emph{conv1}. On these \emph{conv1} rows, the $\delta_u$ of \tool is within $2$ points of the one of \baseline, and the ratio comes from a higher $\delta_l$. With $\tau>0$, $\delta_l$ is the incumbent of the relaxed problem and not a lower bound of the exact one. This is also why, on $14$ of the $20$ \emph{conv1} rows of Table~\ref{tab:fashion-solved}, the $\delta_l$ of \tool exceeds the $\delta_u$ of \baseline.
 
 %% Fashion-MNIST per-cell N2 tables (auto-generated between the AUTO
 %% markers below; regenerated by run_relaxation_sweep.py --dataset
@@ -314,7 +318,7 @@ We next report the individual results on Fashion-MNIST. Table~\ref{tab:fashion-t
 \multirow{2}{*}{model} & \multirow{2}{*}{pert (size)} & \multirow{2}{*}{$\tau$} & \multicolumn{3}{c|}{\baseline} & \multicolumn{3}{c|}{\tool} & \multicolumn{3}{c|}{\tool transfer} & \multirow{2}{*}{\shortstack{$\delta_u{-}\delta_l$ ratio\\\tool}} & \multirow{2}{*}{\shortstack{$\delta_u{-}\delta_l$ ratio\\transfer}} \\
  &  &  & $\delta_l$\% & $\delta_u$\% & $t$ & $\delta_l$\% & $\delta_u$\% & $t$ & $\delta_l$\% & $\delta_u$\% & $t$ &  &  \\}
 
-\begin{table}[H]
+\begin{table}[t]
 \centering
 \small
 \setlength{\tabcolsep}{3pt}
@@ -343,7 +347,7 @@ We next report the individual results on Fashion-MNIST. Table~\ref{tab:fashion-t
 \label{tab:fashion-timeout}
 \end{table}
 
-\begin{table}[H]
+\begin{table}[t]
 \centering
 \small
 \setlength{\tabcolsep}{3pt}
@@ -405,13 +409,13 @@ $\delta_d{=}39\%$ & occlusion (1,1,9) & $0.5$ & 85 & 86 & 2.5 & 87 & 88 & 1.1 & 
 % BEGIN AUTO: aaai_safe_wide_n2_solved_tables:fashion-mnist
 % END AUTO: aaai_safe_wide_n2_solved_tables:fashion-mnist
 
-\FloatBarrier
+
 
 
 \subsection{CIFAR-10}
 \label{sec:evaluation-results-cifar}
 
-We next report the individual results on CIFAR-10. Table~\ref{tab:cifar-timeout} reports the $\delta_u{-}\delta_l$ ratios on instances where all verifiers reach the timeout, and Table~\ref{tab:cifar-solved} reports the speedups on instances where at least one verifier finishes, for \emph{conv4}. The results show that transfer mode provides the largest advantage on CIFAR-10, with speedups up to $72\times$ and $\delta_u{-}\delta_l$ ratios up to $47.5\times$, against $6.2\times$ and $5.9\times$ on the same instances without it.
+In this section, we report the individual results on CIFAR-10. Table~\ref{tab:cifar-timeout} reports the $\delta_u{-}\delta_l$ ratios on instances where all verifiers reach the timeout, and Table~\ref{tab:cifar-solved} reports the speedups on instances where at least one verifier finishes, for \emph{conv4}. The results show that transfer mode provides the largest advantage on CIFAR-10, with speedups up to $72\times$ and $\delta_u{-}\delta_l$ ratios up to $47.5\times$, against $6.2\times$ and $5.9\times$ on the same instances without it. \baseline reaches the timeout on every row, so these speedups are lower bounds. The times of transfer mode do not include the verification of $\Npre$.
 
 %% CIFAR-10 per-cell N2 tables (auto-generated between the AUTO
 %% markers below; regenerated by run_relaxation_sweep.py --dataset
@@ -426,7 +430,7 @@ We next report the individual results on CIFAR-10. Table~\ref{tab:cifar-timeout}
 \multirow{2}{*}{model} & \multirow{2}{*}{pert (size)} & \multirow{2}{*}{$\tau$} & \multicolumn{3}{c|}{\baseline} & \multicolumn{3}{c|}{\tool} & \multicolumn{3}{c|}{\tool transfer} & \multirow{2}{*}{\shortstack{$\delta_u{-}\delta_l$ ratio\\\tool}} & \multirow{2}{*}{\shortstack{$\delta_u{-}\delta_l$ ratio\\transfer}} \\
  &  &  & $\delta_l$\% & $\delta_u$\% & $t$ & $\delta_l$\% & $\delta_u$\% & $t$ & $\delta_l$\% & $\delta_u$\% & $t$ &  &  \\}
 
-\begin{table}[H]
+\begin{table}[t]
 \centering
 \small
 \setlength{\tabcolsep}{3pt}
@@ -455,7 +459,7 @@ $\delta_d{=}36\%$ & occlusion (14,14,9) & $0.0$ & 9.5 & 98 & 180 & 6.7 & 92 & 18
 \label{tab:cifar-timeout}
 \end{table}
 
-\begin{table}[H]
+\begin{table}[t]
 \centering
 \small
 \setlength{\tabcolsep}{3pt}
@@ -491,13 +495,15 @@ $\delta_d{=}36\%$ & occlusion (14,14,9) & $0.7$ & 9.5 & 98 & 180 & 67 & 67 & 101
 % BEGIN AUTO: aaai_safe_wide_n2_solved_tables:cifar
 % END AUTO: aaai_safe_wide_n2_solved_tables:cifar
 
-\FloatBarrier
+
 
 
 \subsection{HAR}
 \label{sec:evaluation-results-har}
 
-We next report the individual results on HAR. Table~\ref{tab:har-timeout} reports the $\delta_u{-}\delta_l$ ratios on instances where all verifiers reach the timeout, for the 1$\times$500 network under $\ell_\infty$ $(0.01)$. The results show that \tool achieves $\delta_u{-}\delta_l$ ratios of $61.7$--$69.8\times$ without transfer and $48.9$--$82.3\times$ with transfer, as the relaxation produces tight bounds on this single-layer architecture.
+In this section, we report the individual results on HAR. Table~\ref{tab:har-timeout} reports the $\delta_u{-}\delta_l$ ratios on instances where all verifiers reach the timeout, for the 1$\times$500 network under $\ell_\infty$ $(0.01)$. The results show that \tool achieves $\delta_u{-}\delta_l$ ratios of $61.7$--$69.8\times$ without transfer and $48.9$--$82.3\times$ with transfer. \tool relaxes no neuron of this network (Table~\ref{tab:relax-precision}), so these ratios do not come from the relaxation.%
+% TODO (Dana): Neta, three \baseline runs on HAR ran for about five hours instead of three. Can you rerun them with the three-hour timeout?
+
 
 % BEGIN AUTO: aaai_safe_wide_n2_appendix_tables:har
 % auto-generated: archs=['har'], dataset=har, total_cell_rows=18
@@ -508,7 +514,7 @@ We next report the individual results on HAR. Table~\ref{tab:har-timeout} report
 \multirow{2}{*}{model} & \multirow{2}{*}{pert (size)} & \multirow{2}{*}{$\tau$} & \multicolumn{3}{c|}{\baseline} & \multicolumn{3}{c|}{\tool} & \multicolumn{3}{c|}{\tool transfer} & \multirow{2}{*}{\shortstack{$\delta_u{-}\delta_l$ ratio\\\tool}} & \multirow{2}{*}{\shortstack{$\delta_u{-}\delta_l$ ratio\\transfer}} \\
  &  &  & $\delta_l$\% & $\delta_u$\% & $t$ & $\delta_l$\% & $\delta_u$\% & $t$ & $\delta_l$\% & $\delta_u$\% & $t$ &  &  \\}
 
-\begin{table}[H]
+\begin{table}[t]
 \centering
 \small
 \setlength{\tabcolsep}{3pt}
@@ -531,4 +537,4 @@ We next report the individual results on HAR. Table~\ref{tab:har-timeout} report
 
 % END AUTO: aaai_safe_wide_n2_appendix_tables:har
 
-\FloatBarrier
+
