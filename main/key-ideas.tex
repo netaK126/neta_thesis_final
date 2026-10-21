@@ -12,6 +12,7 @@
 \label{ch:key-ideas}
 
 In this chapter, we present our key ideas for accelerating the exact analysis of the maximal non-robust bound.
+We describe the conditional-triangle relaxation, the perturbation-difference interval, zonotope bound tightening, and incremental verification.
 
 \begin{figure}[t]
 \centering
@@ -28,14 +29,15 @@ relaxation has been used extensively to bound a
 ReLU's computation through linear constraints~\cite{ehlers2017,singh2019,tjandraatmadja2020convex}.
 While we could apply it directly to each of our two copies, it
 would lose too much precision and not capture their relation. We propose a novel triangle relaxation that explicitly relies on the relation between a neuron $z_{m,k}$
-and its copy $z^{p}_{m,k}$. It has three cases. First, if the triangle over-approximation error of both neuron copies is up to a threshold $\tau$, \tool
+and its copy $z^{p}_{m,k}$. It has three cases. First, if the triangle over-approximation error of both neuron copies is at most a threshold $\tau$, \tool
 relaxes $z_{m,k}$ and $z^{p}_{m,k}$, each with a triangle, and couples them through an interval
 bounding their difference. Second, if only
-one copy is unstable, \tool relaxes it too with a triangle. Otherwise, our relaxation encodes
-one copy exactly, say $z_{m,k}$, in particular its activation state (active or inactive) is captured through
+one copy is unstable and its error is at most $\tau$, \tool relaxes it with a triangle. Third, if both copies are unstable and only one has error at most $\tau$, our relaxation encodes
+the copy whose error exceeds $\tau$ exactly, say $z_{m,k}$, in particular its activation state (active or inactive) is captured through
 a variable or constraint, and replaces the exact encoding of the other copy, $z^p_{m,k}$, with a triangle
 \emph{conditioned} on the activation state of $z_{m,k}$ (without knowing that state upfront). This
 dynamically captures a more precise triangle.
+If both errors exceed $\tau$, \tool encodes both copies exactly.
 To illustrate, consider $z^p_{m,k}$ bounded in $[-0.5, 0.5]$, whose standard triangle is the blue one
 in Figure~\ref{fig:condtriangle}(a). Assume the two copies' inputs differ by $\hat{z}_{m,k} - \hat{z}^p_{m,k} \in [-0.25, 0.25]$. If
 $z_{m,k}$ is active (i.e., $\hat{z}_{m,k} > 0$), then $z^p_{m,k}$'s input is confined to $[-0.25, 0.5]$
@@ -51,13 +53,16 @@ between \emph{distinct} networks~\cite{paulsen2020reludiff,paulsen2020neurodiff,
 present perturbation-difference intervals that bound how far apart the clean and perturbed copies are at
 each neuron, for popular perturbations such as $\ell_\infty$, brightness, contrast, patch, occlusion,
 translation, and rotation, with a single forward pass. We use these intervals not for over-approximation, which loses precision since intervals ignore neuron
-dependencies, but as constraints in our exact, constraint-based verifier, and as input to the
+dependencies, but as constraints in our constraint-based verifier, and as input to the
 conditional-triangle relaxation, as described above. For most perturbations, a pixel's perturbed value depends only on that pixel, so its difference follows
 directly from the perturbation, e.g., $[-\ep,\ep]$ under an $\ell_\infty$ perturbation of size $\ep$. For translation and rotation, however, a pixel's perturbed value is
 drawn from other pixels, so bounding each pixel's difference in isolation ignores the perturbation's
 dependencies and over-approximates it to a useless $[-1,1]$, the maximal difference between two unknown
 pixels in $[0,1]$. Since these transform the input linearly, we instead express the difference between
 the two copies as a linear function of the shared input and bound it jointly over the pixels it combines.
+%
+% TODO (Dana): Neta: does the code support this for convolutional networks? If not, please extend it.
+
 
 \section{Zonotope Bound Tightening}
 \label{sec:key-ideas-zonotope}
@@ -68,7 +73,7 @@ encoding. We propose to tighten these bounds with a \emph{zonotope}, a popular a
 networks in local robustness~\cite{gehr2018,singh2018fast,singh2019,mirman2018differentiable} and
 recently proposed for certifying global robustness~\cite{athavale2026differential}. Unlike that certification, which speeds up verification at the cost of precision, \tool adds the
 zonotope only to tighten $[l_{m,k},u_{m,k}]$ and $[l^{p}_{m,k},u^{p}_{m,k}]$, making more neurons linear or near-decided
-(enabling our conditional-triangle relaxation), without sacrificing precision, which would flag more
+(enabling our relaxation), without sacrificing precision, which would flag more
 inputs as non-robust. Note that our zonotope abstraction complements the perturbation-difference interval: it bounds the
 \emph{values} of each neuron rather than the \emph{difference} between the two copies.
 For example, consider inputs $x_1, x_2 \in [0,1]$, followed by two first-layer neurons
@@ -87,15 +92,15 @@ $z_{2,1}$ non-linear, which increases the encoding's complexity.
 Incremental verification has been shown to scale analysis across applications, in particular local
 robustness~\cite{ugare2023,ugare2022fanc,fischer2022,olive2025}. To the best of our knowledge, \tool is
 the first to support it for global robustness, transferring the analysis results of a previously
-verified network $\Npre$ to a retrained or fine-tuned version $N$ that keeps its architecture. It reuses
+verified network $\Npre$ to a retrained or fine-tuned version $N$ (or a quantized one) that keeps its architecture. It reuses
 $\Npre$ in two ways. First, a difference zonotope bounds how far each of $N$'s pre-activations strays
 from $\Npre$'s. Since $\Npre$'s bounds are already verified, \tool shifts them by this stray and
 intersects the result with $N$'s zonotope bounds, tightening them. Second, \tool warm-starts $N$'s search from $\Npre$'s solution, hinting each unstable neuron's phase
 from $\Npre$'s decision where the two networks likely agree. Warm-starting helps in exact verification
-since each non-linear neuron splits the search into two, giving exponentially many phase assignments;
-starting from a full or partial one may speed up the search if it matches the optimal solution's phases. As a hint only guides
+since each non-linear neuron splits the search into two, giving exponentially many phase assignments.
+Starting from a full or partial one may speed up the search if it matches the optimal solution's phases. As a hint only guides
 the solver's branching and can be overturned, it directs the search without sacrificing precision.
 For example, assume $\Npre$'s maximal non-robust bound $\hat{\delta}_{c_t}$ is achieved by an input $x$
-under which a neuron's pre-activation $\hat{z}^{\mathrm{pre}}_{m,k} = 0.15$, hence active. If $N$'s copy differs by at most
+under which a neuron's pre-activation $\hat{z}^{\mathrm{pre}}_{m,k} = 0.15$, hence active. If $N$'s pre-activation differs from it by a value in
 $[-0.25,0.25]$, then $\hat{z}_{m,k} \in [-0.1,0.4]$. Four fifths of this range is positive, so \tool
-hints $z_{m,k}$ active; had it been $[-0.4,0.1]$, it would hint inactive.
+hints $z_{m,k}$ active. Had it been $[-0.4,0.1]$, it would hint inactive.
