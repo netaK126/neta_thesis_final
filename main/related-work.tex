@@ -18,13 +18,11 @@
 \label{ch:related-work}
 
 In this chapter, we review the methods that verify the robustness of
-neural networks and explain why they do not carry over to global
-robustness. We begin with the verifiers of global robustness,
+neural networks. We begin with the verifiers of global robustness,
 continue with the relaxations that scaled local robustness and
 with the reuse of one verification for another, and close with the
 propagation of intervals and of differences between networks and with
-the attacks that guide a verifier. Lastly, we collect the limitations that
-this thesis addresses.
+the attacks that guide a verifier. 
 
 \section{Global Robustness Verification}
 \label{sec:related-global-robustness}
@@ -59,7 +57,9 @@ a network trained in the usual way~\citep{sun2022deepglobal}.
 \citet{athavale2024} verify global robustness by self-composition and
 a softmax abstraction, which yields sound but not tight bounds, and a
 bound that is not tight flags inputs as vulnerable that an exact
-analysis would clear. \baseline computes the minimal globally robust
+analysis would clear.
+% TODO (Dana): The AI review of the AAAI submission asked for sharper positioning against \citet{athavale2024}. Add one sentence on how their property and guarantee differ from ours (e.g., checking a given confidence level vs.\ computing the minimal bound, softmax abstraction vs.\ exact encoding), after checking their paper.
+ \baseline{} computes the minimal globally robust
 bound exactly, by mixed-integer programming, dependency analysis and a
 hyper-attack, and it is an anytime verifier, that is, it returns the
 bounds it has proved so far when it is stopped~\citep{kabaha2024vhagar}.
@@ -70,17 +70,20 @@ of reach.
 Other works address formulations close to global robustness.
 Networks can be trained to be globally robust by
 construction~\citep{leino2021gloro}, which changes the network rather
-than analyzes a given one. \citet{wang2022} bound the variation of the output of a single
-input, and \citet{tobler2025} verify the implementation of a
+than analyzes a given one. \citet{wang2022} bound the maximal variation of the output under a perturbation over all inputs,
+and \citet{tobler2025} verify the implementation of a
 certifier rather than a network. The property this thesis verifies is
-the one of \baseline, and the question it asks is how to obtain it
-without paying for hours of analysis.
+the one of \baseline.
 
 \section{Relaxations}
 \label{sec:related-relaxations}
 
-An exact encoding of the problem costs a binary variable per
-undecided neuron, so the number of variables grows exponentially. To
+An exact encoding of the problem
+% TODO (Dana): Neta: which problem? Name it, e.g., local or global robustness verification.
+ costs a binary variable per
+undecided neuron
+% TODO (Dana): Neta: ``undecided'' is a new term. Use ``unstable'', as in Chapter~\ref{ch:background}.
+, so the search space grows exponentially with the number of unstable neurons. To
 overcome this, many verifiers use relaxations, which replace the
 binary variable that encodes a neuron exactly with a convex region
 that constrains it. The triangle relaxation
@@ -95,26 +98,29 @@ PRIMA~\citep{muller2022prima}, by partitioning the input
 region~\citep{anderson2020tightened}, by relaxing a ReLU together with
 its pre-activation~\citep{tjandraatmadja2020convex}, and by dual
 algorithms over sets of active
-variables~\citep{depalma2021}. \citet{wang2022} go further and relax
-the binary variables entirely, for the property they verify.
+variables~\citep{depalma2021}. \citet{wang2022} over-approximate their encoding by decomposing the network and relaxing parts of it to a linear program, which they then refine.
 
-However, none of these relaxations relies on the two copies $N$ and
+However, except for \citet{wang2022}, none of these relaxations relies on the two copies $N$ and
 $N^{p}$ of the global robustness setting, and on the relation between
 $z_{m,k}$ and $z^{p}_{m,k}$, to obtain a tighter region.
+\citet{wang2022} encode the two copies with extra dependencies between them, and over-approximate this encoding by network decomposition and a linear-program relaxation, so their bound is sound but not exact. \tool relaxes only the neurons whose phase is nearly determined, conditions the relaxation of a neuron in one copy on the phase of its counterpart in the other copy, and encodes the remaining neurons exactly.
+%
+% TODO (Dana): Neta, double-check this description of \citet{wang2022} (interleaving twin-network MILP, network decomposition, LP relaxation with refinement) against their paper. The AI review of the AAAI submission asked for this positioning.
+
 
 \section{Incremental Verification}
 \label{sec:related-reuse}
 
-Neural networks in real-world systems are rarely static. 
+Neural networks in real-world systems are rarely static.
 They undergo continuous adaptation through
 retraining~\citep{parisi2019}, fine-tuning~\citep{yosinski2014},
 pruning and quantization~\citep{han2016deepcompression}. Because
 complete formal verification is
-NP-complete~\citep{katz2017reluplex}, 
-re-verifying an entire network from scratch after minor modifications 
-quickly becomes intractable. 
+NP-complete~\citep{katz2017reluplex},
+re-verifying an entire network from scratch after minor modifications
+quickly becomes intractable.
 Incremental verifiers answer it by carrying the analysis of
-one network over to the next exploiting structural and behavioral invariants 
+one network over to the next exploiting structural and behavioral invariants
 across model revisions. They transfer proof
 templates~\citep{ugare2022fanc,fischer2022}, reuse proofs between
 solver calls~\citep{yang2023deepinc}, keep a continuous
@@ -126,19 +132,20 @@ local robustness, or global properties that do not capture a
 perturbation. IVAN verifies global properties
 incrementally~\citep{ugare2023}, but in the scenario of robustness it
 loses precision over perturbations. Therefore, there is still room to
-research new approaches for incremental verification of global robustness 
+research new approaches for incremental verification of global robustness
 that do not lose precision.
 
 \section{Interval and Difference Propagation}
 \label{sec:related-difference-propagation}
 
-Interval Bound Propagation provides a computationally efficient 
-abstraction for neural network verification, 
-serving as a foundational primitive in scalable 
-local robustness verifiers~\citep{liu2021algorithms}. 
+Interval Bound Propagation provides a computationally efficient
+abstraction for neural network verification,
+serving as a foundational primitive in scalable
+local robustness verifiers~\citep{liu2021algorithms}.
 ReluVal carries linear expressions over the input instead of constants, which
 keeps the dependencies that plain intervals lose~\citep{wang2018reluval},
 but it too is defined over a single network and a single input.
+
 
 Intervals serve global properties as well. Fairify verifies
 individual fairness, a property of every pair of similar inputs, and
@@ -147,23 +154,26 @@ over a part of the input domain~\citep{biswas2023fairify}, and global
 specifications in general can be reduced to ordinary ones by
 composing two copies of the network and handing the composition to an
 existing verifier~\citep{boetius2023hyperproperties}.
+%
+% TODO (Dana): Neta: avoid orphan paragraphs. The first two paragraphs of this section are too short. Extend or merge them.
 
-Differential verification propagates divergence bounds between 
-network pairs rather than analyzing each copy alone. 
-ReluDiff and NeuroDiff bound how far apart two different networks are on the 
-same input~\citep{paulsen2020reludiff,paulsen2020neurodiff}. 
+
+Differential verification propagates divergence bounds between
+network pairs rather than analyzing each copy alone.
+ReluDiff and NeuroDiff bound how far apart two different networks are on the
+same input~\citep{paulsen2020reludiff,paulsen2020neurodiff}.
 LUCID bounds the difference between networks to verify a privacy
 property~\citep{kabaha2025lucid}. In all of them the two networks are
 distinct and the input is shared. However, in global robustness settings,
-we have two copies of the same network, with different inputs, 
+we have two copies of the same network, with different inputs,
 where the inputs differ by a perturbation.
 
 Another common abstraction is Zonotopes. In local robustness they keep the
 dependencies between neurons that intervals
 lose~\citep{singh2018fast,gehr2018}. RefineZono refines the bounds of
 selected neurons with a solver, so that the zonotope certifies
-more~\citep{singh2019refinezono}. For global robustness, 
-\citet{athavale2026differential} propagate differential halo zonotopes 
+more~\citep{singh2019refinezono}. For global robustness,
+\citet{athavale2026differential} propagate differential halo zonotopes
 to decide a confidence-based two-safety formulation of
 global robustness while losing precision.
 
