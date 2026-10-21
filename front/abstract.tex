@@ -36,20 +36,20 @@ is rarely verified once, as it is
 retrained and fine-tuned, and every revision raises the same question
 again.
 
-We introduce \tool, which enables exact global robustness verification
+We introduce \tool, which enables global robustness verification
 on larger networks by combining these complementary abstractions, and
 supports incremental verification, leveraging the verification of a
 previous network to speed up that of a revised one.
-
 \tool speeds up the exact verifier \baseline by $7.6$
 times on average (up to $102.6$ times) when either
 terminates, and on the hardest tasks, where both time out, returns
-bounds $19.9$ times tighter on average (up to
+bounds whose gap is $19.9$ times smaller on average (up to
 $261.2$ times). When using incremental verification, \tool
-speeds up the analysis by $12.4$ times (up to
+speeds up the analysis by $12.4$ times on average (up to
 $115.4$ times) when either terminates, and returns
-$20.9$ times tighter bounds (up to $261.2$
+bounds whose gap is $20.9$ times smaller on average (up to $261.2$
 times) when both time out.
+
 
 }
 
