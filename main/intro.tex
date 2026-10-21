@@ -1,0 +1,91 @@
+% =====================================================================
+% 15. Introduction
+%
+% The text is the Introduction section of the paper, word for word.
+% Only the outline of the thesis is added at the end, as the paper has
+% no counterpart for it.
+%
+% The multipliers of the last paragraph are left as the red
+% placeholders of item 13, because the numbers the paper reports here
+% disagree with the ones of the Evaluation and of the Conclusions.
+% TODO: fill them once the final numbers are in.
+% =====================================================================
+\chapter{Introduction}
+\label{ch:introduction}
+
+Neural network classifiers are highly accurate but vulnerable to
+adversarial examples: small input perturbations that change their
+classification~\cite{szegedy2014,carlini2017,madry2018}. To provide
+guarantees against them, \emph{local robustness} verification
+certifies that a single given input cannot be misclassified under any
+small
+perturbation~\cite{katz2017reluplex,gehr2018,singh2019,wang2021}. But
+a deployed network in a safety-critical application, such as
+autonomous driving~\cite{eykholt2018} or medical
+imaging~\cite{finlayson2019}, faces inputs it has never seen, and must
+know which of them an attacker could flip. \emph{Global robustness}
+addresses this: it guarantees that any input classified above a
+confidence level cannot be flipped by a
+perturbation~\cite{leino2021gloro,kabaha2024vhagar,athavale2024}. At
+inference, any input below this level is flagged as potentially
+vulnerable and can be handled accordingly.
+
+Verifying global robustness, however, is hard: it reasons about a
+perturbation of every input, which requires analyzing two copies of
+the network, the clean input and its perturbation, rather than the
+single network of local robustness, which doubles the complexity.
+Existing verifiers thus face a tradeoff: exact
+verification~\cite{kabaha2024vhagar} takes hours even on networks with
+up to 2000 neurons, while over-approximating
+it~\cite{athavale2024} loses precision and proves robustness for fewer
+inputs.
+
+We observe that lightweight abstractions such as intervals, zonotopes,
+and triangle relaxations made local robustness
+tractable~\cite{liu2021algorithms}. Extending them to global
+robustness naively loses too much precision, and using each on its own
+yields only a moderate speedup. Our key idea is to exploit the
+relationship between the two copies with abstractions that together
+keep the over-approximation error small while speeding up the
+verification.
+
+We introduce \tool (Boosting by Lightweight Encoding of Network
+Differences), which extends these abstractions to the two network
+copies: a perturbation-difference interval bounds how much the two
+copies can differ at each neuron, extending difference intervals for
+various perturbations (including linear transformations), a zonotope
+tightens the common per-neuron interval bounds by capturing
+dependencies, and a novel conditional triangle linearly relaxes
+neurons whose activation is nearly determined, leveraging the relation
+between the two copies. \tool is also the first to support incremental
+global robustness verification: if a verified network is
+retrained~\cite{parisi2019} or fine-tuned~\cite{yosinski2014}, \tool
+verifies the revised network by transferring the old bounds and
+warm-starting the analysis.
+
+We evaluate \tool on MNIST~\cite{lecun1998}, Fashion-MNIST~\cite{xiao2017},
+CIFAR-10~\cite{krizhevsky2009} and HAR~\cite{anguita2013har} networks
+across six perturbation types. \tool speeds up the exact verifier
+\baseline~\cite{kabaha2024vhagar} by $7.6$ times on
+average (up to $102.6$ times), and on the hardest tasks,
+where both time out, returns bounds $19.9$ times tighter
+(up to $261.2$ times). For incremental verification, \tool
+speeds up verification of a revised network by $12.4$
+times (up to $115.4$ times) and returns
+$20.9$ times tighter bounds (up to $261.2$
+times) on the tasks that time out.
+
+\section*{Thesis Organization}
+
+Chapter~\ref{ch:background} defines neural network classifiers,
+global robustness and its exact verification.
+Chapter~\ref{ch:related-work} reviews the methods that verify
+robustness and the limitations that leave global robustness open.
+Chapter~\ref{ch:key-ideas} presents our key ideas, 
+and Chapter~\ref{ch:blend} defines
+them formally.
+Chapter~\ref{ch:evaluation} evaluates \tool against the previous 
+state-of-the-art verifier, in execution time and in the tightness of the
+bounds, and measures the contribution of each of our techniques.
+Chapter~\ref{ch:discussion} concludes and presents the directions we
+leave open.

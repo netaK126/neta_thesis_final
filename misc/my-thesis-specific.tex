@@ -1,0 +1,196 @@
+% =====================================================================
+% The packages, the macros and the conventions of this thesis.
+%
+% The class loads fontspec, geometry, setspace, polyglossia and bidi
+% itself, so this file only adds what the chapters need. bidi is
+% sensitive to the order in which packages are loaded, so anything
+% added here is loaded after the class.
+% =====================================================================
+
+% --------------------------- general --------------------------------
+\usepackage{xspace}
+\usepackage{xcolor}
+% pinned to the 2024-06-01 release. array 2.7 dropped
+% \UseMathForPositioningText, which bidi's right-to-left patch for
+% tabular still calls, so with the current release every table in the
+% thesis fails. Drop the date once bidi has caught up.
+\usepackage{array}[=2024-06-01]
+\usepackage{graphicx}
+\usepackage[labelfont=bf]{caption}
+\usepackage{subcaption}
+\usepackage{tikz}
+\usepackage{hyperref}
+\hypersetup{hidelinks,linktoc=all}
+
+% ---------------------- formulas and equations -----------------------
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{mathtools}
+
+% equations numbered within chapters: (2.1), (2.2), ...
+\numberwithin{equation}{chapter}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[chapter]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+% the notation, with the names of the paper, so that formulas carry over
+\newcommand{\reals}{\mathbb{R}}
+\newcommand{\relu}{\mathrm{ReLU}}
+\newcommand{\Npre}{N_{\mathrm{pre}}}
+\newcommand{\ep}{\varepsilon}
+\newcommand{\mI}{\mathcal{I}}
+\newcommand{\conf}[3]{\mathcal{C}(#1,#2,#3)}  % network, input, class
+\newcommand{\dlo}{\delta_l}
+\newcommand{\dup}{\delta_u}
+
+% The chapters were written with the citation commands of natbib;
+% biblatex, which the class uses, spells the same two commands
+% \parencite and \textcite.
+\let\cite\parencite
+\let\citep\parencite
+\let\citet\textcite
+
+% Some of the venue names in the bibliography are long and carry no
+% break point, so the entries are set with relaxed spacing.
+\appto{\bibsetup}{\sloppy}
+
+% the names of the tool and of the baseline
+\newcommand{\tool}{BLEND\xspace}
+\newcommand{\baseline}{VHAGaR\xspace}
+
+% ---------------------------- figures --------------------------------
+\graphicspath{{graphics/}}
+\usetikzlibrary{arrows.meta,calc,positioning,patterns,shapes.geometric}
+\captionsetup[figure]{position=below,skip=6pt}
+
+% The legend and the column headings of the tau figure are cropped off
+% the drawing and set here instead. The drawing is a finished pdf from
+% the paper, with everything in it at one size, so scaling cannot
+% enlarge its labels alone; set in the document they read at \small
+% rather than at the 8.2pt the drawing gives them. The colours are the
+% ones the drawing uses for the two series.
+% the gutter the row labels of the tau figure sit in, and what is
+% left of the text block for the drawing itself
+\newlength{\taukeywd}
+\newlength{\tauimgwd}
+\definecolor{blendplain}{HTML}{1F78B4}
+\definecolor{blendxfer}{HTML}{2CA02C}
+\newcommand{\serieskey}[2]{%
+  \tikz[baseline=-0.55ex]{%
+    \draw[#1,line width=0.7pt] (0,0) -- (12pt,0);%
+    \node[#2,fill=#1,draw=#1,inner sep=1.3pt] at (6pt,0) {};}}
+
+% ---------------------------- tables ---------------------------------
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{longtable}
+\usepackage{siunitx}
+\usepackage{adjustbox}   % used by the result tables copied from the paper
+\captionsetup[table]{position=above,skip=6pt}
+
+% The evaluation sets large tables with [H], which forces a page break
+% whenever one does not fit in what is left of the page. Under
+% \flushbottom, which report gives a two-sided document, the glue on
+% such a page is stretched until the page is full, which drives the
+% heading to the top and its paragraph to the foot with a hole between
+% them. \raggedbottom leaves the slack at the bottom instead, where it
+% belongs.
+\raggedbottom
+
+% [H], which pins a table exactly where it is written instead of
+% letting it float. Used for the small tables of the evaluation, which
+% otherwise sink to the foot of the page, away from the paragraph that
+% introduces them. Only for tables that are short enough to fit in the
+% space left on the page; a large one would leave a gap instead.
+\usepackage{float}
+
+% \FloatBarrier, used at the end of every subsection of the evaluation
+% to keep a table inside the subsection that discusses it. Without it a
+% float can drift pages past its text, because floats are emitted in
+% the order they are declared and one stuck float holds up the rest.
+\usepackage{placeins}
+
+% --------------------------- the algorithm ---------------------------
+\usepackage[ruled,linesnumbered,noend]{algorithm2e}
+\DontPrintSemicolon
+\SetKwFunction{BLEND}{BLEND}
+\SetKwFunction{PGD}{PGDAttack}
+
+% ------------------- the filler pages are blank ----------------------
+% The class prints the thesis two-sided, so that every chapter opens on
+% a right-hand page, and LaTeX inserts a filler page wherever that
+% leaves a left-hand page empty. Those pages are meant to be blank, but
+% the page style in force still prints a number on them. These are the
+% two commands that insert them, with the filler page made empty.
+\makeatletter
+\renewcommand{\cleardoublepage}{%
+  \clearpage
+  \if@twoside
+    \ifodd\c@page\else
+      \hbox{}\thispagestyle{empty}\newpage
+      \if@twocolumn\hbox{}\newpage\fi
+    \fi
+  \fi}
+\renewcommand*{\cleartoleftpage}{%
+  \clearpage
+  \if@twoside
+    \ifodd\c@page
+      \hbox{}\thispagestyle{empty}\newpage
+      \if@twocolumn\hbox{}\newpage\fi
+    \fi
+  \fi}
+\makeatother
+
+% ---------------- the width of the notation list ---------------------
+% The style of the class gives the symbols a column 3cm wide, which the
+% difference intervals overrun, and its columns add up to more than the
+% text block, because the padding between them is not subtracted. This
+% is the same style with a wider first column and the arithmetic fixed.
+% Its third column lists the pages an entry is used on; the entries
+% here are never cited with \gls, so that column is always empty and
+% is given no width, which would otherwise leave the list some 50pt
+% narrower than the text block.
+\renewglossarystyle{iitthesis}{%
+    \renewenvironment{theglossary}%
+    {\begin{longtable}{@{}p{4.6cm}@{\quad}%
+       p{\dimexpr\textwidth-4.6cm-1em-2\tabcolsep\relax}%
+       p{0pt}@{}}}%
+        {\end{longtable}}%
+    \renewcommand*{\glossaryheader}{}%
+    \renewcommand*{\glsgroupheading}[1]{}%
+    \renewcommand*{\glossentry}[2]{ %
+        \textbf{\glstarget{##1}{\glossentryname{##1}}}%
+        &
+        \formatglossarydescription{##1}%
+        & ##2 %
+        \tabularnewline%
+    }%
+    \renewcommand*{\glsgroupskip}{}%
+}
+
+% ------------------- one list of figures and tables ------------------
+% The class prints a list of figures alone. The thesis has twelve
+% result tables as well, so the two lists are printed together, under
+% one heading, where the class would have printed the list of figures.
+\makeatletter
+\renewcommand{\conditionallistoffigures}{%
+  \@ifundefined{r@iitthesis:had-figures}{}{%
+    \chapter*{List of Figures and Tables}%
+    \addcontentsline{toc}{chapter}{List of Figures and Tables}%
+    \addcontentsline{cot}{chapter}{רשימת איורים וטבלאות}%
+    \@starttoc{lof}%
+    \@starttoc{lot}%
+  }%
+}
+\makeatother

@@ -1,0 +1,69 @@
+% =====================================================================
+%  M.Sc. Thesis -- master file
+%
+%  Built on the official Technion class, misc/iitthesis.cls. The class
+%  typesets the cover and title pages, the statements, the table of
+%  contents, the page numbering and the whole Hebrew section, so this
+%  file only has to name the fields and include the chapters.
+%
+%  Compile with:
+%      python3 compile_thesis.py
+%  which wraps  latexmk -xelatex thesis  (xelatex, biber and
+%  makeglossaries in the right order, repeated until it settles).
+%
+%  Class options:
+%    MSc                   the degree
+%    with-ethics-statement the ethics statement the rules require
+%    beforeDefense         hides the personal acknowledgements, for the
+%                          copy the examination committee reads. Drop
+%                          it for the version submitted to the
+%                          libraries after the examination.
+% =====================================================================
+\documentclass[MSc,with-ethics-statement,beforeDefense]{misc/iitthesis}
+
+% our own packages, macros and conventions, first because the fields
+% and the abstract below use them
+\input{misc/my-thesis-specific}
+
+% the fields of the thesis: author, title, supervision, dates, and the
+% statements that the class prints for us
+\input{misc/thesis-fields}
+
+% the personal acknowledgements, printed only after the examination
+\input{front/personal-acks}
+
+% the abstract, in English and in Hebrew
+\input{front/abstract}
+
+% the notation and the abbreviations
+\input{front/abbrevs}
+
+% misc/iitthesis-extra.sty is the template's optional convenience
+% style. It is not loaded here: it brings ntheorem and the algorithm
+% package, which clash with the amsthm environments of the proofs and
+% with the algorithm2e of Algorithm 1. What it provided that we need,
+% hyperref above all, is loaded in misc/my-thesis-specific.tex.
+
+\begin{document}
+
+% ===================== front matter ==================================
+% cover page, title page, the statements, the table of contents, the
+% list of figures, and the abstract, which is page 1
+% The class prints a list of figures only; misc/my-thesis-specific.tex
+% replaces it with one list of the figures and the tables together.
+\makefrontmatter
+
+% ===================== main matter ===================================
+\include{main/intro}
+\include{main/prelims}
+\include{main/related-work}
+\include{main/key-ideas}
+\include{main/blend}
+\include{main/evaluation}
+\include{main/conclusion}
+
+% ===================== back matter ===================================
+% the bibliography, and then the Hebrew section in reverse page order
+\makebackmatter
+
+\end{document}

@@ -1,0 +1,272 @@
+% =====================================================================
+% Chapter 8: Discussion and Conclusions
+%
+% Required topic: the discussion of the research and the conclusions.
+% The chapter closes the thesis with its conclusions and with the
+% directions it leaves open.
+%
+% The conclusions are the ones of the Conclusion section of the paper.
+% =====================================================================
+\chapter{Conclusions}
+\label{ch:discussion}
+
+In this chapter, we conclude. We begin with what this thesis presents
+and what its results show, and close with the directions we leave
+open.
+
+\section{Conclusions}
+\label{sec:discussion-conclusions}
+
+We present \tool, a verifier that accelerates constraint-solver-based
+global robustness verification and is the first to support its
+incremental verification. \tool tightens the encoding with
+perturbation-difference intervals and zonotope bounds, relaxes neurons
+with a novel conditional-triangle relaxation, and, in transfer mode,
+reuses a prior verification through difference bounds and warm-start
+hints. \tool speeds up \baseline by $7.6\times$ on
+average, and by $12.4\times$ with transfer. On the
+hardest tasks, where all verifiers time out, it returns bounds
+$19.9\times$ tighter, and $20.9\times$
+with transfer. Finally, our results show that the gains of \tool carry
+over to networks beyond the reach of \baseline, a network with
+$3\times$ more neurons than the largest network of \baseline and a
+network with 500 neurons in one hidden layer.
+
+\section{Future Work}
+\label{sec:discussion-future-work}
+
+\tool makes global robustness verification markedly faster, and on
+the hardest tasks, where every verifier runs out of time and speed no
+longer tells them apart, it returns the tighter bound. Global
+robustness verification nonetheless remains an open and active
+problem: there is always room for a faster analysis and a tighter
+bound, and for carrying the guarantee to architectures and domains
+beyond those we study here. We discuss several such directions below.
+
+\subsection{Small Perturbations}
+\label{sec:future-small-perturbations}
+
+The initial intuition is that small perturbations would be easier to verify.
+However, small perturbations can be very difficult to do so. 
+For examle, under an $\ell_\infty$ perturbation with a very
+small $\ep$, every perturbed neuron sits within a hair of its clean
+counterpart: the difference intervals
+$[\Delta^{\hat z,\downarrow}_{m,k},\Delta^{\hat z,\uparrow}_{m,k}]$
+are narrow, and the perturbed copy carries little that the clean one
+does not already determine.
+
+\tool profits from this far less than it might. Its per-neuron bounds
+$[l_{m,k},u_{m,k}]$ are computed over the whole input domain, so which
+neurons are unstable, and hence how many binaries the program carries,
+is the same whether $\ep$ is large or vanishingly small. The
+conditional triangle does not remove them either: relaxing $z_{m,k}$
+conditions its triangle on the other copy's binary $a^{p}_{m,k}$, so
+the perturbed copy keeps its binary exactly where the clean one gives
+its up. The program still pays for two copies' worth of unstable
+neurons in order to encode a second copy that has almost nothing left
+to say. Moreover, as we show below, a small $\ep$
+pins $\hat{\delta}_{c_t}$ near zero, so the hyper-adversarial attack
+almost never returns a feasible pair, the search starts with no lower
+bound, and the solver is left to bring $\dup$ down on its own.
+
+We can profit from the same closeness that causes the difficulty:
+where \tool uses the difference intervals to couple the two copies, a
+small enough perturbation makes them tight enough to stand in for
+one. Here the perturbed copy is worth dropping altogether: we encode
+the clean copy alone and replace each perturbed neuron by its
+difference interval. That halves the binary variables the solver has to decide,
+taking the square root of the worst-case search space, and gives up
+only as much as the perturbation can move the logits, which in this
+regime is little.
+
+Formally, the difference intervals already carry the perturbation
+along the network, from the input through each affine map and each
+ReLU, so at the output they place every logit of the perturbed copy
+against its clean counterpart,
+\begin{equation}
+  N(x)_k+\Delta^{\hat z,\downarrow}_{L,k}
+  \;\leq\; N(x^{p})_k \;\leq\;
+  N(x)_k+\Delta^{\hat z,\uparrow}_{L,k}.
+  \label{eq:future-logit-difference}
+\end{equation}
+Now $\conf{N}{x^{p}}{c_t}>0$ says exactly that $c_t$ is the strict
+argmax of $N(x^{p})$, so it is the conjunction over the other classes
+of $N(x^{p})_{c_t}>N(x^{p})_k$, and therefore:
+\[
+  N(x)_{c_t}+\Delta^{\hat z,\uparrow}_{L,c_t}
+  \;\geq\; N(x^{p})_{c_t}
+  \;>\; N(x^{p})_k
+  \;\geq\; N(x)_k+\Delta^{\hat z,\downarrow}_{L,k},
+\]
+whose two ends mention the clean copy alone. Rearranging them,
+\begin{equation}
+  N(x)_{c_t}-N(x)_k \;>\;
+  \Delta^{\hat z,\downarrow}_{L,k}-\Delta^{\hat z,\uparrow}_{L,c_t}
+  \qquad\text{for every } k\neq c_t.
+  \label{eq:future-one-copy}
+\end{equation}
+
+\subsection{Verifying New Perturbations in Global Robustness Settings}
+\label{sec:future-perturbations}
+
+Today, \tool, and the other verifiers we compare it to, support only a handful
+of perturbations. However, there are many more perturbations that are of 
+interest to the research community, and we discuss below how \tool can be 
+extended to support them as well.
+
+
+
+\paragraph{$\ell_0$ perturbation.}
+An $\ell_0$ perturbation allows up to $t$ pixels to be modified within
+$[0,1]$, leaving the rest untouched. Bounding it coordinate by
+coordinate collapses the analysis: because any pixel could be one of
+the $t$, interval propagation assigns $[-x_k, 1-x_k]$ to every
+coordinate -- the very interval \tool already uses for a patch pixel
+-- discarding the sparsity constraint entirely. We retain the budget
+$t$ by evaluating the perturbation at the first affine layer rather
+than at the pixel. Let $S=\{k \mid x^{p}_k \neq x_k\}$ be the pixels
+the perturbation touches, so $\lvert S\rvert\leq t$. The bias cancels
+in the difference of the two pre-activations, leaving a sum over $S$
+alone,
+\[
+  \hat z^{p}_{1,j}-\hat z_{1,j}
+  \;=\; \sum_{k} w_{1,j,k}\,(x^{p}_k-x_k)
+  \;=\; \sum_{k\in S} w_{1,j,k}\,(x^{p}_k-x_k) .
+\]
+Each $\lvert x^{p}_k-x_k\rvert$ is at most $1$, as both lie in
+$[0,1]$, so the difference is at most
+$\sum_{k\in S}\lvert w_{1,j,k}\rvert$, and since the perturbation
+chooses $S$ the bound must take its worst choice, the $t$ largest
+weight magnitudes:
+\begin{equation}
+  \bigl\lvert \hat z^{p}_{1,j} - \hat z_{1,j} \bigr\rvert
+  \;\leq\; \max_{\lvert S\rvert\leq t} \sum_{k\in S}\lvert w_{1,j,k}\rvert
+  \;=\; \sum_{k \in T_j} \lvert w_{1,j,k} \rvert ,
+  \label{eq:future-l0}
+\end{equation}
+where $T_j$ selects the $t$ coordinates with the largest weight
+magnitudes $\lvert w_{1,j,k} \rvert$.
+
+Encoding it is possible, but it can be expensive. Intuitively, we can
+set an indicator per pixel, saying whether that pixel is perturbed or
+not, which costs a binary for every input coordinate and so grows
+with the size of the input: $784$ on MNIST and $3072$ on CIFAR-10,
+against a program whose cost is already exponential in its binaries.
+It also leaves $\binom{n}{t}$ choices of support to check. We can
+instead rely on over-approximations such
+as~\eqref{eq:future-l0}, or on the algorithms that already solve
+$\ell_0$ for local robustness, where Calzone covers the subsets of
+pixels with a covering design~\citep{shapira2023calzone} and CoVerD
+chooses among such designs without building
+them~\citep{shapira2024coverd}. Carrying either to a setting with two
+copies and an unknown input requires further research.
+
+\paragraph{$\ell_1$ perturbation.}
+An $\ell_1$ perturbation enforces a global constraint across all coordinates:
+$\sum_k \lvert x^{p}_k - x_k \rvert \leq \ep$. Because any single pixel may
+consume the entire budget, coordinate-wise interval propagation assigns
+$[-\ep, \ep]$ to every input coordinate. We can preserve the
+global budget by evaluating the first affine layer via H\"older's inequality:
+\[
+  \bigl\lvert \hat z^{p}_{1,j} - \hat z_{1,j} \bigr\rvert
+  \;\leq\; \ep \max_k \lvert w_{1,j,k} \rvert ,
+\]
+which replaces the sum over absolute weights with the single
+largest row magnitude.
+
+The budget here is cheap to encode: an auxiliary
+$u_k$ per coordinate with $u_k \geq x^{p}_k - x_k$ and
+$u_k \geq x_k - x^{p}_k$, together with the single row
+$\sum_k u_k \leq \ep$, captures the $\ell_1$ ball exactly and adds no
+binary. The difficulty lies in the bounds rather than in the
+encoding, and it outlasts the first layer. The bound above spends the
+budget once, at that layer, and from there on the propagation of
+Section~\ref{sec:blend-pert-diff} is interval arithmetic over each
+neuron separately, so two neurons may both sit at their worst case
+although no single perturbation can place them there together: the
+budget they share is gone. The zonotope cannot restore it either, as
+it is a linear image of a box and the $\ell_1$ ball is not. Carrying a
+shared budget through the network, rather than spending it at the
+first layer, is what this direction needs and what we leave open.
+
+\paragraph{$\ell_2$ perturbation.}
+An $\ell_2$ perturbation enforces $\lVert x^{p} - x \rVert_2 \leq \ep$.
+Coordinate-wise interval bounding relaxes this ball into an $\ell_\infty$
+hypercube of radius $\ep$, admitting points with $\ell_2$-norm up to
+$\sqrt{n}\ep$. By the Cauchy--Schwarz inequality, the deviation at the first
+pre-activation is bounded directly by:
+\[
+  \bigl\lvert \hat z^{p}_{1,j} - \hat z_{1,j} \bigr\rvert
+  \;\leq\; \ep \, \lVert w_{1,j,\cdot} \rVert_2 .
+\]
+All standard norms instantiate a single dual relation: for an $\ell_p$
+perturbation, the pre-activation difference is bounded by
+$\ep \lVert w_{1,j,\cdot} \rVert_q$ with $1/p + 1/q = 1$. The coordinate-wise
+formulation in \tool corresponds to $q = 1$, which is tight only when
+$p = \infty$. Downstream propagation (Section~\ref{sec:blend-pert-diff})
+proceeds identically, requiring only this revised first-layer base case.
+The single
+quadratic row $\sum_k (x^{p}_k - x_k)^2 \leq \ep^2$ is convex, and can be
+encoded as is to the solver.
+The difficulty is again in the bounds, and it is the same difficulty.
+Cauchy--Schwarz settles the first layer, and past it the propagation
+treats each neuron's difference on its own, as though every one of
+them could reach its worst case at once, which no perturbation of
+norm $\ep$ can arrange. Here too the zonotope is of no help, being a
+linear image of a box. The two norms therefore leave the same
+question: how to carry one shared budget through a network whose
+abstractions are built to carry a box. We regard this as the main
+obstacle to supporting them and leave it to future research.
+
+\subsection{Training Networks for Verifiability}
+\label{sec:future-training}
+
+Every direction above takes the network as given. The cost of the
+analysis, however, is set by the network:
+Section~\ref{sec:background-exact-verification} ties it to the number
+of unstable neurons, and
+Section~\ref{sec:future-small-perturbations} observes that this number
+does not fall when the perturbation shrinks, because the bounds that
+decide it are taken over the whole input domain. The network itself is
+the remaining lever.
+
+Training for verifiability is being studied for local robustness.
+\citet{xiao2019relustability} add a regularizer penalizing
+pre-activation bounds that straddle zero, which leaves more neurons
+decided and shortens the analysis, and
+\citet{chen2022grafting} replace unstable neurons with linear
+functions whose slope and intercept are then retrained, carrying
+complete verification to far larger networks.
+
+To the best of our knowledge, this question has been asked only for
+local robustness, never for global robustness, and the two differ in
+what they ask of a neuron. Our bounds are taken over all of
+$[0,1]^n$, so a neuron is stable only if its pre-activation holds one
+sign over the entire domain. That target is not merely harder but
+bounded: were every
+neuron stable over the whole domain, no ReLU would ever switch and the
+network would be an affine map, so full stability costs the classifier
+everything it has. What to ask for is a frontier rather than a goal:
+how many neurons can be decided over the whole domain before the
+accuracy goes.
+
+A second observation makes the target easier. \tool does not need a
+neuron to be stable, only near-decided:
+Section~\ref{sec:blend-condtri} relaxes it once the normalized
+triangle area $\tfrac{u\,\lvert l\rvert}{2(u-l)}$ falls below $\tau$,
+so a neuron whose pre-activation barely crosses zero is unstable and
+yet costs nothing. Training against that area rather than against the sign asks
+for less, is continuous where the sign is not, and optimizes the
+quantity our relaxation actually tests. Whether it also buys back the
+accuracy that whole-domain stability would cost is left open, as is
+whether the objective should be the speed of the analysis at all,
+rather than $\delta^*$ itself, which is what decides how many inputs a
+deployed network has to flag.
+
+The training regime deserves study in its own right. Adversarial
+training, certified training and ordinary training leave a network in
+different shapes, and we do not know how each of them bears on the
+quantities above: on how many neurons stay decided over the whole
+domain, on how small the triangle areas become, and on $\delta^*$
+itself. Measuring that, rather than assuming it, is where we would
+begin.

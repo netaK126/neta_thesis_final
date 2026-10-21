@@ -1,0 +1,97 @@
+% =====================================================================
+% The abstract, in English and in Hebrew.
+%
+% The rules ask for 200 to 500 words in English and 500 to 2000 in
+% Hebrew, and the Hebrew one is not a translation: it carries content
+% from the introduction and an overview of the results as well.
+%
+% This file is in UTF-8. Keep it that way.
+% =====================================================================
+
+\abstractEnglish{
+
+Neural networks have shown great success in safety-critical
+applications, such as medical diagnosis and autonomous driving.
+However, even a small change to an input can flip the classification
+of the network, and such a change is called an adversarial attack.
+Global robustness enables identifying, at
+inference time, the inputs that may be susceptible to such attacks.
+However, verifying global robustness is a hard task: it reasons about
+two copies of the network at once, one for an input and one for the
+same input after an attack. This is what has kept global robustness
+far less studied in comparison to the extensive research on local robustness,
+which reasons about a single input at a time, instead of all possible inputs.
+
+Inspired by the abstractions that scaled local robustness, we propose
+lightweight abstractions for scaling global robustness, defined over
+two copies of a network. An abstraction describes the relations
+between the two copies, and the relations between the different
+neurons, which lets the verifier rule out large parts of its
+search before the expensive reasoning begins. In addition, we present a
+novel conditional-triangle relaxation that extends the popular
+triangle approximation to global robustness while reducing its
+over-approximation error. We also present, for the first time, an
+algorithm for incremental verification of global robustness: a network
+is rarely verified once, as it is
+retrained and fine-tuned, and every revision raises the same question
+again.
+
+We introduce \tool, which enables exact global robustness verification
+on larger networks by combining these complementary abstractions, and
+supports incremental verification, leveraging the verification of a
+previous network to speed up that of a revised one.
+
+\tool speeds up the exact verifier \baseline by $7.6$
+times on average (up to $102.6$ times) when either
+terminates, and on the hardest tasks, where both time out, returns
+bounds $19.9$ times tighter on average (up to
+$261.2$ times). When using incremental verification, \tool
+speeds up the analysis by $12.4$ times (up to
+$115.4$ times) when either terminates, and returns
+$20.9$ times tighter bounds (up to $261.2$
+times) when both time out.
+
+}
+
+% TODO: the Hebrew abstract. What follows is a translation of the
+% English one, and it is about 280 words. The rules ask for 500 to
+% 2000, and for the Hebrew abstract to carry content from the
+% introduction and an overview of the results rather than to be a
+% translation, so it still has to be extended.
+\abstractHebrew{
+
+רשתות נוירונים הראו נתוני הצלחה מרשימים מאוד באפליקציות עם דרישות ביטחון גבוהות, כגון אבחונים
+רפואיים ונהיגה אוטונומית. עם זאת, שינויים קטן בקלט של הרשת עלולים לשנות את
+הסיווג של הרשת. שינוי כזה נקרא תקיפה אדוורסריאלית. חסינות גלובלית
+מאפשרת לזהות, בזמן ההסקה, את הקלטים אשר עלולים להיות חשופים לתקיפות
+כאלה. אלא שאימות התכונה של חסינות גלובלית הינה משימה קשה: במהלך האימות עלינו לנתח שני עותקים
+של הרשת בו זמנית, האחד עבור קלט והאחר עבור הקלט לאחר
+תקיפה. זו הסיבה שחסינות גלובלית נחקרה הרבה פחות מחסינות מקומית,
+המנתחת קלט יחיד בכל פעם ולא את כל הקלטים האפשריים.
+
+בהשראת אבסטרקציות שאפשרו את הרחבתו של אימות החסינות המקומית, אנו מציעים
+אבסטרקציות קלות משקל להרחבתו של אימות החסינות הגלובלית, המוגדרות מעל שני
+עותקים של הרשת. אבסטרקציה מתארת קשרים בין שני העותקים, וקשרים בין הניורונים השונים,
+ובכך מאפשרת למאמת לפסול חלקים גדולים ממרחב החיפוש עוד בטרם מתחיל
+הניתוח היקר. נוסף על כך, אנו מציגים רלקסציית משולש מותנה חדשה,
+המרחיבה את קירוב המשולש המקובל אל החסינות הגלובלית ומצמצמת את שגיאת
+קירוב-היתר שלו. כמו כן, אנו מציגים לראשונה אלגוריתם לאימות
+אינקרמנטלי של חסינות גלובלית: רשת מאומתת לעתים רחוקות פעם אחת בלבד,
+שכן היא עוברת אימון מחדש וכיוונון עדין, וכל גרסה מעלה את אותה שאלה
+מחדש.
+
+אנו מציגים את \textenglish{\tool}, המאפשר אימות חסינות גלובלית מדויק
+ברשתות גדולות יותר באמצעות שילובן של האבסטרקציות האלו, ותומך
+באימות אינקרמנטלי, תוך ניצול האימות של רשת קודמת כדי להאיץ את האימות
+של גרסה מעודכנת שלה.
+
+\textenglish{\tool} מאיץ את המאמת המדויק \textenglish{\baseline} פי
+\textenglish{7.6} בממוצע (ועד פי \textenglish{102.6}) כאשר אחד
+מהשניים מסיים, ובמשימות הקשות ביותר, שבהן שניהם חורגים ממגבלת הזמן,
+הוא מחזיר חסמים הדוקים פי \textenglish{19.9} בממוצע (ועד פי
+\textenglish{261.2}). בשימוש באימות אינקרמנטלי, \textenglish{\tool}
+מאיץ את הניתוח פי \textenglish{12.4} (ועד פי \textenglish{115.4})
+כאשר אחד מהשניים מסיים, ומחזיר חסמים הדוקים פי \textenglish{20.9}
+(ועד פי \textenglish{261.2}) כאשר שניהם חורגים ממגבלת הזמן.
+
+}
