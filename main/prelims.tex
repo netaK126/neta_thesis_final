@@ -28,15 +28,15 @@ $N : \reals^{n} \to \reals^{|C|}$, where $n$ is the input dimension and
 $C$ the set of classes. Inputs are assumed to lie in $[0,1]^n$, as is
 standard for image classifiers. An input $x$ is classified by its
 maximal score, $c = \mathrm{argmax}(N(x))$. The network has an input
-layer $z_{0,k} = x_k$ followed by $L$ layers, such that $N(x) = \hat{z}_L$. 
-Every neuron computes a \emph{pre-activation}, 
+layer $z_{0,k} = x_k$ followed by $L$ layers, such that $N(x) = \hat{z}_L$.
+Every neuron computes a \emph{pre-activation},
 an affine expression over the neurons of the
 previous layer, and every layer but the last one follows it with an
 \emph{activation}, a non-linear function applied to it. We consider two kinds
 of layers: fully connected and convolutional.
 
 \paragraph{Fully connected layers.}
-We write $z_{m,k}$ for the $k$th neuron of layer $m$ and $k_m$ 
+We write $z_{m,k}$ for the $k^{\text{th}}$ neuron of layer $m$ and $k_m$
 for its number of neurons. Its
 pre-activation weights every neuron of the previous layer by
 $w_{m,k,k'}$ and adds a bias $b_{m,k}$:
@@ -88,18 +88,19 @@ $N$ is \emph{$\delta$-globally robust} for a class $c$ if every input
 it classifies as $c$ with confidence at least $\delta$ stays
 classified as $c$ under that perturbation~\citep{kabaha2024vhagar}.
 Since the confidence of a network is bounded by some $\delta_{\max}$,
-every network is $\delta_{\max}$-globally robust; the goal is to
+every network is $\delta$-globally robust for every
+$\delta > \delta_{\max}$. This holds vacuously, as no input has such a
+confidence. The goal is to
 compute the minimal globally robust bound, denoted $\delta^*$, as it
 flags the fewest inputs as potentially unsafe.
 Figure~\ref{fig:delta} illustrates this, plotting each input $x$ as a
 black dot at its confidence for the class $c$, along with its
 neighborhood of perturbed inputs as a circle. An input with confidence
-below $0$ is not classified as $c$, on the red background; one with
+below $0$ is not classified as $c$ (the red background in Figure~\ref{fig:delta}). An input with
 confidence below the globally robust bound $\delta^*$ may have a
 perturbed input with confidence below $0$, and is thus not guaranteed
-robust, on the yellow background; and one with confidence at least
-$\delta^*$ stays classified as $c$ under every perturbation, on the
-green background.
+robust (the yellow background). An input with confidence at least
+$\delta^*$ stays classified as $c$ under every perturbation (the green background).
 
 Formally, the \emph{confidence} of an input $x$ in a class $c$ is the
 gap between its score and the next-highest one:
@@ -109,19 +110,20 @@ gap between its score and the next-highest one:
 \end{equation}
 and $N$ classifies $x$ as $c$ when $\conf{N}{x}{c} > 0$. A
 \emph{perturbation} is a function $P$ that, given an input $x$ and a
-size $e$, returns a perturbed input, and we denote the set of all
+size $e$, returns a perturbed input. We denote the set of all
 perturbations of $x$ up to size $\ep$ by
 \begin{equation}
   \mI_\ep(x) = \{P(x, e) \mid e \leq \ep\}.
   \label{eq:perturbation-set}
 \end{equation}
-The minimal globally robust bound $\delta^*$ is defined by adding a
-small number to its counterpart, the \emph{maximal non-robust bound}.
+The minimal globally robust bound $\delta^*$ is the infimum of the $\delta$ for which $N$ is $\delta$-globally robust. It equals its counterpart, the \emph{maximal non-robust bound}. %
+% TODO (Dana): Neta: in VHAGaR, the condition is $\geq$, which is why $\min$/$\max$ were correct. Here it is $>$, which needs $\sup$/$\inf$. I suggest switching to $\geq$ as in VHAGaR. If not, please change to $\sup$/$\inf$.
+
 We define this bound as the maximum of $\hat{\delta}_{c_t}$ over all
 target classes $c_t \neq c$, where
 \begin{equation}
 \begin{aligned}
-  \hat{\delta}_{c_t} = \max\; \bigl\{\, \delta \;\bigm|\;
+  \hat{\delta}_{c_t} = \,\sup\; \bigl\{\, \delta \;\bigm|\;
   &\exists x,\, x^{p} \in \mI_\ep(x): \\
   &\conf{N}{x}{c} \geq \delta \,\wedge\, \conf{N}{x^{p}}{c_t} > 0
   \,\bigr\}.
@@ -130,6 +132,26 @@ target classes $c_t \neq c$, where
 \end{equation}
 Namely, it is the highest confidence at which some input classified as
 $c$ can still be perturbed into $c_t$.
+$N$ is $\delta$-globally robust for every $\delta$ above the
+maximal non-robust bound and for no $\delta$ below it, which is why the
+two bounds are equal.
+
+\paragraph{Perturbation types.}
+We consider seven perturbation types. The $\ell_\infty$ perturbation,
+with parameter $\ep$, changes every pixel independently by at most
+$\ep$: $x^{p} = x + e$ with $\|e\|_\infty \leq \ep$. Brightness, with
+parameter $\ep$, shifts all pixels by the same $e \in [0,\ep]$:
+$x^{p} = x + e$. Contrast, with parameter $\ep$, scales all pixels by
+the same factor: $x^{p} = (1+e)x$ with $e \in [0,\ep]$. Patch, with
+parameters $(\ep,i,j,s)$, perturbs by at most $\ep$ each pixel of the
+$s \times s$ square whose top-left pixel is at row $i$ and column $j$.
+Occlusion, with parameters $(i,j,s)$, sets the pixels of the same
+square to $0$. Translation, with parameters $(r,q)$, shifts the image
+by $r$ rows down and $q$ columns right. Rotation, with parameter
+$\theta$, rotates the image by $\theta$ degrees. Under translation and
+rotation, $x^{p} = Tx$ for one fixed linear transformation $T$, and the
+pixels left uncovered are set to $0$. Under all seven types, $x^{p}$ must also lie in the input
+domain.
 
 \section{Exact Verification}
 \label{sec:background-exact-verification}
@@ -139,9 +161,9 @@ Such analysis defines the confidences $\conf{N}{x}{c}$ and
 $\conf{N}{x^{p}}{c_t}$ over an input $x$ and its perturbation
 $x^{p} \in \mI_\ep(x)$ through constraints, for example in first-order
 logic~\citep{katz2019,katz2017reluplex} or in a mixed-integer
-program~\citep{tjeng2019}. A solver then computes
+linear program (MILP)~\citep{tjeng2019}. A solver then computes
 \[
-  \hat{\delta}_{c_t} = \max \conf{N}{x}{c}
+  \hat{\delta}_{c_t} = \max_{x,\, x^{p} \in \mI_\ep(x)} \conf{N}{x}{c}
   \quad \text{subject to} \quad
   \conf{N}{x^{p}}{c_t} > 0 .
 \]
@@ -183,4 +205,4 @@ optimum $\hat{\delta}_{c_t}$, tightening both as it searches, and
 stopping it at any point gives the sound guarantee
 $\hat{\delta}_{c_t} \in [\dlo, \dup]$. The two bounds meet at
 optimality, and the narrower the interval, the more the analysis has
-established, which is why we report it alongside the execution time.
+established.
