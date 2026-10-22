@@ -171,7 +171,9 @@ so that it covers both clean input $x$ and perturbed input $x^p$. Then, \tool in
  \label{eq:zonotope-interval}
 \end{equation}
 with the
-per-neuron interval-arithmetic bound to obtain the tighter $[l_{m,k},u_{m,k}]$. For transfer, \tool builds
+per-neuron interval-arithmetic bound to obtain the tighter $[l_{m,k},u_{m,k}]$. \tool applies the
+zonotope from the first fully connected layer onward, bounding the convolutional layers with interval
+arithmetic. For transfer, \tool builds
 another zonotope whose interval $[d^{\downarrow}_{m,k},d^{\uparrow}_{m,k}]$ bounds how far $N$'s
 pre-activations are from $\Npre$'s (the clean copy via $z_{m,k}-z^{\mathrm{pre}}_{m,k}$, the perturbed
 via $z^{p}_{m,k}-z^{\mathrm{pre},p}_{m,k}$).%

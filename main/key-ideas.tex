@@ -60,8 +60,6 @@ drawn from other pixels, so bounding each pixel's difference in isolation ignore
 dependencies and over-approximates it to a useless $[-1,1]$, the maximal difference between two unknown
 pixels in $[0,1]$. Since these transform the input linearly, we instead express the difference between
 the two copies as a linear function of the shared input and bound it jointly over the pixels it combines.
-%
-% TODO (Dana): Neta: does the code support this for convolutional networks? If not, please extend it.
 
 
 \section{Zonotope Bound Tightening}

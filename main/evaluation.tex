@@ -32,14 +32,13 @@ robustness verifier. Like \baseline, \tool solves the mixed-integer
 program with Gurobi~\citep{gurobi} under a three-hour timeout, with
 MIPGap${=}0.01$, MIPFocus${=}3$, Threads${=}32$, Seed${=}4$, and
 Cutoff${=}\delta^{\mathrm{HA}}$, the bound of the hyper-adversarial
-attack. For the contrast perturbation, which multiplies two variables,
+attack. The one exception is the MNIST 3$\times$100 runs with
+$c_s{\in}\{0,4\}$, which ran under a five-hour timeout.
+For the contrast perturbation, which multiplies two variables,
 we set NonConvex${=}2$. For the conditional-triangle relaxation, we
 set $\tau{=}0.5$. The results of \baseline are obtained by our
 implementation with all of \tool's techniques disabled, so both
 verifiers share the Gurobi parameters and the hyper-adversarial attack.
-%
-% TODO (Dana): Neta, a few things in the code: (1)~$W_1(T-I)$ (\texttt{geometric\_diff\_map\_*}, \texttt{perturbation\_intervals.jl}:123--160) works only for fully connected networks and only with \texttt{-{}-geometric\_intervals}. Can you fold $T-I$ into the first convolution, so it also works for \emph{conv1} and \emph{conv4}, and turn it on in all translation and rotation runs? (2)~In \texttt{compute\_diff\_bounds\_zonotope} (\texttt{perturbation\_intervals.jl}:750), when a neuron may be inactive in one of the networks, the code applies the zonotope ReLU to $\hat z^{N}-\hat z^{\Npre}$. But the difference after the ReLU is $\relu(\hat z^{N})-\relu(\hat z^{\Npre})$, which can be negative, so the bounds come out too tight. Can you replace it with $[\min(0,l_d),\max(0,u_d)]$, as the interval code does? The test \texttt{review\_tests/test\_diff\_zonotope\_relu.jl} shows the problem. (3)~The post-activation difference interval is added only to variables named \texttt{x\_rect\_layerCount} (\texttt{perturbation\_intervals.jl}:252). Relaxed neurons are named \texttt{x\_rect\_btpr\_advstd\_\dots}, so they get none. Can you match both names? (4)~The warm start reads $\Npre$'s values from its MIP solution and uses $l/2$ for inactive neurons (\texttt{help\_functions.jl}:304--306). Can you save $x^{\mathrm{pre}*}$ and compute $\Npre$'s pre-activations on it instead?
-
 
 \subsection{Experimental Setup}
 \label{sec:evaluation-setup}
@@ -103,7 +102,7 @@ show, for each network, perturbation and class pair, the time of the
 three verifiers as bars and the tightness of their analysis as a black
 line, a box per perturbation and group of networks. Figures~\ref{fig:n2-bounddiff-app}--\ref{fig:n2-bounddiff-app-3}
 show the tightness alone, on the hardest instances, where all three
-verifiers reach the three-hour timeout and the time no longer
+verifiers reach the timeout and the time no longer
 separates them. The detailed tables report the individual experiments,
 and they come in two kinds: the timeout tables (Tables~\ref{tab:mnist-timeout}, \ref{tab:fashion-timeout}, \ref{tab:cifar-timeout} and~\ref{tab:har-timeout}), which give the bounds
 $\dlo$ and $\dup$ of each verifier and the ratio of the bound
@@ -116,7 +115,7 @@ test over these per-instance ratios.
 The results show that, on the class pairs where at least one verifier solves, \tool computes its
 bound $7.6\times$ faster than \baseline on average (up to $102.6\times$), and $12.4\times$ faster
 (up to $115.4\times$) with transfer. On the most challenging
-instances, where all three approaches reach the three-hour timeout, only the tightness differs.
+instances, where all three approaches reach the timeout, only the tightness differs.
 There, \tool's bound difference is $19.9\times$ smaller than \baseline's on average,
 and $20.9\times$ smaller with transfer; both reach $261.2\times$ at best.
 The following sections provide additional results and individual experiment results.
