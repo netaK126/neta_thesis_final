@@ -161,9 +161,10 @@ and Table~\ref{tab:har-timeout} for HAR.
 \subsection{MNIST}
 \label{sec:evaluation-results-mnist}
 
-In this section, we report the individual results on MNIST. Each instance shows the bounds $\delta_l$ and $\delta_u$ as percentages of $\delta_{\max}$ and the execution time in minutes. For instances where all verifiers reach the solver timeout, the last two columns report the $\delta_u{-}\delta_l$ ratio, $\frac{\delta_u^{\baseline}-\delta_l^{\baseline}}{\delta_u-\delta_l}$: above $1$ the verifier is tighter than \baseline.%
-% TODO (Dana): The tables print $\delta_d$, which is never defined: define it here or drop it. Also state that each row averages over the targets $c_t$.
- Table~\ref{tab:mnist-timeout} reports the $\delta_u{-}\delta_l$ ratios on instances where all verifiers reach the timeout, and Table~\ref{tab:mnist-solved} reports the speedups on instances where at least one verifier finishes, for architectures 3$\times$50, 3$\times$100, and \emph{conv1}. The results show that \tool achieves the largest improvements under occlusion: the $\delta_u{-}\delta_l$ ratios reach $261.2\times$ under occlusion $(3,3,5)$, in both modes, and the speedups reach $102.6\times$, and $115.4\times$ with transfer, under occlusion $(1,1,5)$.%
+In this section, we report the individual results on MNIST. Each instance shows the bounds $\delta_l$ and $\delta_u$ as percentages of $\delta_{\max}$ and the execution time in minutes. For instances where all verifiers reach the solver timeout, the last two columns report the $\delta_u{-}\delta_l$ ratio, $\frac{\delta_u^{\baseline}-\delta_l^{\baseline}}{\delta_u-\delta_l}$: above $1$ the verifier is tighter than \baseline.
+Each row averages over the three class targets, $c_t$, for a single source class $c_s$ and perturbation type and size, and the last row averages over all rows.
+The tables also report $\delta_d$, the maximum confidence over the dataset, as a percentage of $\delta_{\max}$. 
+Table~\ref{tab:mnist-timeout} reports the $\delta_u{-}\delta_l$ ratios on instances where all verifiers reach the timeout, and Table~\ref{tab:mnist-solved} reports the speedups on instances where at least one verifier finishes, for architectures 3$\times$50, 3$\times$100, and \emph{conv1}. The results show that \tool achieves the largest improvements under occlusion: the $\delta_u{-}\delta_l$ ratios reach $261.2\times$ under occlusion $(3,3,5)$, in both modes, and the speedups reach $102.6\times$, and $115.4\times$ with transfer, under occlusion $(1,1,5)$.%
 % TODO (Dana): The 3$\times$100 rows with $c_s{\in}\{0,4\}$ ran with a 300-minute timeout, not three hours, and they enter the average $27.4\times$. Rerun them at three hours or state the timeout per row.
 
 

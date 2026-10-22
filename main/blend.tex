@@ -64,9 +64,7 @@ its binaries. In transfer mode, \tool looks at the activation phase of every neu
 \small
 \caption{\protect\BLEND{$N$, $c$, $c_t$, $P$, $\ep$, $\Npre$}}\label{alg:blend}
 \KwIn{classifier $N$; source class $c$, target class $c_t$; perturbation $P$ and limit $\ep$; and, in transfer mode, $\Npre$ with its verified bounds $[l^{\mathrm{pre}}_{m,k},u^{\mathrm{pre}}_{m,k}]$ and $[l^{p,\mathrm{pre}}_{m,k},u^{p,\mathrm{pre}}_{m,k}]$, and optimal input $x^{\mathrm{pre}*}$}
-\KwOut{anytime bounds $[\delta_l,\delta_u]$ on $\hat\delta_{c_t}$, where $\delta_u$ is sound%
-% TODO (Dana): Neta: for $\tau>0$, $\delta_l$ may exceed $\hat\delta_{c_t}$, so only $\delta_u$ is sound.
-}
+\KwOut{anytime bounds $[\delta_l,\delta_u]$ for the problem's objective, where $\delta_u$ soundly upper-bounds $\hat\delta_{c_t}$ when $\tau>0$}
 $\varphi=$ MIP encoding of $N(x),N(x^{p})$\;
 $(\delta^{\mathrm{HA}},a^{\mathrm{pgd}})=\PGD{$N,c,c_t,P,\ep$}$\;
 $\varphi\wedge\{\hat\delta_{c_t}\ge\delta^{\mathrm{HA}}\}$\;
@@ -122,7 +120,15 @@ Otherwise it keeps the binaries of the unstable copies, couples the copies with 
 from the attack's hints and (if available) $\Npre$'s optimal input $x^{\mathrm{pre}*}$ (Line~21). \tool then adds \baseline's
 dependency constraints between the two copies (Line~22). After it completes encoding, it adds the objective $\max\hat\delta_{c_t}$ over $\varphi$ (Line~23).
 Then it submits to a solver to compute the maximal non-robust bound,
-which returns the bounds $[\delta_l,\delta_u]$ (Line~24).
+which returns the bounds $[\delta_l,\delta_u]$ (Line~24). For
+$\tau{=}0$ the encoding is exact, and both bounds hold on
+$\hat\delta_{c_t}$. For $\tau>0$ it is a relaxation: every solution of
+the exact encoding satisfies $\varphi$, so the optimum of $\varphi$ is
+at least $\hat\delta_{c_t}$ and $\delta_u$ bounds it soundly from
+above. A feasible solution of $\varphi$, however, need not satisfy the
+exact encoding, so $\delta_l$ may exceed $\hat\delta_{c_t}$. The sound
+lower bound is then $\delta^{\mathrm{HA}}$, which the hyper-attack
+obtains from an actual input pair and which Line~3 adds to $\varphi$.
 
 We next formalize each of these components.
 
@@ -142,10 +148,10 @@ giving the first-layer difference without error. At layer $m>0$, the interval
 $[\Delta^{\hat z,\downarrow}_{m,k},\Delta^{\hat z,\uparrow}_{m,k}]$ after the affine computation
 $\hat z_{m,k}$ is obtained from the previous layer's intervals by interval arithmetic, and the interval
 after the ReLU, $[\Delta^{z,\downarrow}_{m,k},\Delta^{z,\uparrow}_{m,k}]$, depends on the neuron's
-stability: it is $[\Delta^{\hat z,\downarrow}_{m,k},\Delta^{\hat z,\uparrow}_{m,k}]$ if both $z_{m,k}$ and
-$z^{p}_{m,k}$ are active, $[0,0]$ if both are inactive, and
-$[\min(0,\Delta^{\hat z,\downarrow}_{m,k}),\max(0,\Delta^{\hat z,\uparrow}_{m,k})]$ otherwise.%
-% TODO (Dana): Neta: ``active'' and ``inactive'' are not defined. Chapter~\ref{ch:background} defines only stable and unstable neurons. Use those terms, e.g., stable with $l_{m,k}\ge 0$ for both copies.
+stability: it is $[\Delta^{\hat z,\downarrow}_{m,k},\Delta^{\hat z,\uparrow}_{m,k}]$ if both copies are
+stable with $l_{m,k}\ge 0$ and $l^{p}_{m,k}\ge 0$, so that each ReLU is the identity;
+$[0,0]$ if both are stable with $u_{m,k}\le 0$ and $u^{p}_{m,k}\le 0$, so that each ReLU is zero; and
+$[\min(0,\Delta^{\hat z,\downarrow}_{m,k}),\max(0,\Delta^{\hat z,\uparrow}_{m,k})]$ otherwise.
 
 
 \section{Zonotope Bound Tightening}
@@ -207,20 +213,35 @@ Otherwise, if $a^{p}_{m,k}=0$:
  [l_I, u_I] = [l_{m,k}, u_{m,k}] \,\cap\, [l^{p}_{m,k} - \Delta^{\hat z,\uparrow}_{m,k},\; -\Delta^{\hat z,\downarrow}_{m,k}].
  \label{eq:condtri-inactive-bounds}
 \end{equation}
-Given these bounds and the variable $a^{p}_{m,k}$ (whose value is unknown when \tool constructs the MIP),
-our new conditional encoding captures both triangles simultaneously:
+The conditioning can leave $[l_A,u_A]$ or $[l_I,u_I]$ without zero in its interior, and
+over such an interval the triangle is not a sound upper bound on $\relu$: its upper edge
+passes through $(l,0)$, which falls below $\relu(l)$ whenever $l\ge 0$, so the constraint
+would cut off a feasible assignment. We therefore split into scenarios by the signs of the
+endpoints, writing $\mathrm{env}_{[l,u]}$ for the tightest linear upper bound on $\relu$
+over $[l,u]$:
+\begin{equation}
+ \mathrm{env}_{[l,u]}(\hat z) =
+ \begin{cases}
+  \tfrac{u}{u-l}\,(\hat z - l), & l < 0 < u,\\
+  \hat z,                       & l \ge 0,\\
+  0,                            & u \le 0,
+ \end{cases}
+ \label{eq:condtri-envelope}
+\end{equation}
+and $M_{m,k}=u_{m,k}+\lvert l_{m,k}\rvert$. Given these bounds and the variable
+$a^{p}_{m,k}$ (whose value is unknown when \tool constructs the MIP), our new conditional
+encoding captures both branches simultaneously:
 \begin{equation}
 \begin{aligned}
  z_{m,k} &\ge 0, \qquad z_{m,k} \ge \hat z_{m,k}, \\
- z_{m,k} &\le \tfrac{u_A}{u_A - l_A}\bigl(\hat z_{m,k} - l_A\bigr) + (u_{m,k}+\lvert l_{m,k}\rvert)(1 - a^{p}_{m,k}), \\
- z_{m,k} &\le \tfrac{u_I}{u_I - l_I}\bigl(\hat z_{m,k} - l_I\bigr) + (u_{m,k}+\lvert l_{m,k}\rvert)\,a^{p}_{m,k},
+ z_{m,k} &\le \mathrm{env}_{[l_A,u_A]}(\hat z_{m,k}) + M_{m,k}\,(1 - a^{p}_{m,k}), \\
+ z_{m,k} &\le \mathrm{env}_{[l_I,u_I]}(\hat z_{m,k}) + M_{m,k}\,a^{p}_{m,k}.
 \end{aligned}
 \label{eq:condtri-encoding}
 \end{equation}
-Intuitively, the middle constraint sets the triangle when $a^{p}_{m,k}=1$, and the bottom constraint sets
-it otherwise.
-%
-% TODO (Dana): Neta, what happens in~\eqref{eq:condtri-encoding} when $[l_A,u_A]$ or $[l_I,u_I]$ is stable or empty after the conditioning? Your code handles these cases separately (\texttt{sibgate\_emit.jl}). Shouldn't the thesis split into these cases too?
+Intuitively, the middle constraint sets the envelope when $a^{p}_{m,k}=1$, and the bottom
+constraint sets it otherwise. The two branches fall into their scenarios separately: the
+conditioning may decide one interval and leave the other straddling zero.
 
 
 \subsection{Soundness}
@@ -258,10 +279,15 @@ where
 $[l_A, u_A] = [l_{m,k}, u_{m,k}] \cap [-\Delta^{\hat z,\uparrow}_{m,k},\; u^{p}_{m,k} - \Delta^{\hat z,\downarrow}_{m,k}]$
 and
 $[l_I, u_I] = [l_{m,k}, u_{m,k}] \cap [l^{p}_{m,k} - \Delta^{\hat z,\uparrow}_{m,k},\; -\Delta^{\hat z,\downarrow}_{m,k}]$.
-If $l_A\geq 0$ or $u_A\leq 0$, the neuron is decided under the active case and
-$z_{m,k}$ is encoded with a single linear constraint. Similarly for $[l_I,u_I]$ and the
-inactive case. Otherwise, $l_A < 0 < u_A$ and $l_I < 0 < u_I$, and \tool uses the
-conditional-triangle relaxation. We split into two cases.
+We split into scenarios by the signs of the endpoints of $[l_A,u_A]$, and separately by
+those of $[l_I,u_I]$, because the triangle bounds $\relu$ soundly only over an interval
+that straddles zero. If $l_A\geq 0$, then $\hat z_{m,k}\geq 0$ on the active branch,
+$\relu(\hat z_{m,k})=\hat z_{m,k}$, and the active constraint holds with equality. If
+$u_A\leq 0$, then $\relu(\hat z_{m,k})=0$ there and it holds with $0$. If $[l_A,u_A]$ is
+empty, the branch is infeasible and its constraint never binds. The same scenarios apply
+to $[l_I,u_I]$ and the inactive constraint. It remains to prove the scenario
+$l_A < 0 < u_A$ and $l_I < 0 < u_I$, where both constraints are triangles. We split into
+two cases.
 
 \paragraph{Case $a^{p}_{m,k}=1$.}
 By $z^{p}_{m,k}$'s exact encoding, $z^{p}_{m,k}=\hat z^{p}_{m,k}$ and
