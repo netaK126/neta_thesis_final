@@ -213,35 +213,27 @@ Otherwise, if $a^{p}_{m,k}=0$:
  [l_I, u_I] = [l_{m,k}, u_{m,k}] \,\cap\, [l^{p}_{m,k} - \Delta^{\hat z,\uparrow}_{m,k},\; -\Delta^{\hat z,\downarrow}_{m,k}].
  \label{eq:condtri-inactive-bounds}
 \end{equation}
-The conditioning can leave $[l_A,u_A]$ or $[l_I,u_I]$ without zero in its interior, and
-over such an interval the triangle is not a sound upper bound on $\relu$: its upper edge
-passes through $(l,0)$, which falls below $\relu(l)$ whenever $l\ge 0$, so the constraint
-would cut off a feasible assignment. We therefore split into scenarios by the signs of the
-endpoints, writing $\mathrm{env}_{[l,u]}$ for the tightest linear upper bound on $\relu$
-over $[l,u]$:
-\begin{equation}
- \mathrm{env}_{[l,u]}(\hat z) =
- \begin{cases}
-  \tfrac{u}{u-l}\,(\hat z - l), & l < 0 < u,\\
-  \hat z,                       & l \ge 0,\\
-  0,                            & u \le 0,
- \end{cases}
- \label{eq:condtri-envelope}
-\end{equation}
-and $M_{m,k}=u_{m,k}+\lvert l_{m,k}\rvert$. Given these bounds and the variable
-$a^{p}_{m,k}$ (whose value is unknown when \tool constructs the MIP), our new conditional
-encoding captures both branches simultaneously:
+Given these bounds and the variable $a^{p}_{m,k}$ (whose value is unknown when \tool
+constructs the MIP), our new conditional encoding captures both branches simultaneously:
 \begin{equation}
 \begin{aligned}
  z_{m,k} &\ge 0, \qquad z_{m,k} \ge \hat z_{m,k}, \\
- z_{m,k} &\le \mathrm{env}_{[l_A,u_A]}(\hat z_{m,k}) + M_{m,k}\,(1 - a^{p}_{m,k}), \\
- z_{m,k} &\le \mathrm{env}_{[l_I,u_I]}(\hat z_{m,k}) + M_{m,k}\,a^{p}_{m,k}.
+ z_{m,k} &\le \tfrac{u_A}{u_A - l_A}\bigl(\hat z_{m,k} - l_A\bigr) + M_{m,k}(1 - a^{p}_{m,k}), \\
+ z_{m,k} &\le \tfrac{u_I}{u_I - l_I}\bigl(\hat z_{m,k} - l_I\bigr) + M_{m,k}\,a^{p}_{m,k},
 \end{aligned}
 \label{eq:condtri-encoding}
 \end{equation}
-Intuitively, the middle constraint sets the envelope when $a^{p}_{m,k}=1$, and the bottom
-constraint sets it otherwise. The two branches fall into their scenarios separately: the
-conditioning may decide one interval and leave the other straddling zero.
+where $M_{m,k}=u_{m,k}+\lvert l_{m,k}\rvert$. Intuitively, the middle constraint sets the
+triangle when $a^{p}_{m,k}=1$, and the bottom constraint sets it otherwise.
+
+The conditioning may leave a branch's interval decided, and there the triangle is not
+sound: its upper edge passes through $(l,0)$, which falls below $\relu(l)$ when
+$l\ge 0$. We therefore substitute, for that branch, the tightest linear bound on $\relu$
+over its interval. If $l_A\ge 0$, the ReLU is the identity on $[l_A,u_A]$ and the active
+constraint becomes $z_{m,k}\le \hat z_{m,k}+M_{m,k}(1-a^{p}_{m,k})$; if $u_A\le 0$, the
+ReLU is zero there and it becomes $z_{m,k}\le M_{m,k}(1-a^{p}_{m,k})$; and if $[l_A,u_A]$
+is empty, the branch is infeasible. The inactive constraint is substituted in the same way
+from $[l_I,u_I]$, independently of the active one.
 
 
 \subsection{Soundness}
@@ -272,8 +264,8 @@ constraints. The first two, $z_{m,k}\geq 0$ and $z_{m,k}\geq \hat z_{m,k}$, hold
 immediately since they are also in the exact encoding. It remains to show the active and
 inactive constraints:
 \begin{align*}
- z_{m,k} &\le \tfrac{u_A}{u_A - l_A}\bigl(\hat z_{m,k} - l_A\bigr) + (u_{m,k}+\lvert l_{m,k}\rvert)(1 - a^{p}_{m,k}), \\
- z_{m,k} &\le \tfrac{u_I}{u_I - l_I}\bigl(\hat z_{m,k} - l_I\bigr) + (u_{m,k}+\lvert l_{m,k}\rvert)\,a^{p}_{m,k}.
+ z_{m,k} &\le \tfrac{u_A}{u_A - l_A}\bigl(\hat z_{m,k} - l_A\bigr) + M_{m,k}(1 - a^{p}_{m,k}), \\
+ z_{m,k} &\le \tfrac{u_I}{u_I - l_I}\bigl(\hat z_{m,k} - l_I\bigr) + M_{m,k}\,a^{p}_{m,k}.
 \end{align*}
 where
 $[l_A, u_A] = [l_{m,k}, u_{m,k}] \cap [-\Delta^{\hat z,\uparrow}_{m,k},\; u^{p}_{m,k} - \Delta^{\hat z,\downarrow}_{m,k}]$
