@@ -46,7 +46,7 @@ verifiers share the Gurobi parameters and the hyper-adversarial attack.
 
 Experiments ran on a dual AMD EPYC 7713 server with 2\,TB RAM and eight A100 GPUs (Ubuntu 20.04.1).
 Table~\ref{tab:networks} summarizes the networks and the dataset each one is trained on. The \#Neurons column counts the hidden ReLU neurons, and the Architecture column counts the output layer as an FC layer. For example, 3$\times$50 has two hidden layers of 50 neurons and an output layer.%
-% TODO (Dana): verify HAR: by this convention, 1$\times$500 (one hidden layer of 500 and an output layer) is 2 FC layers, not 1.
+% ANSWER (Neta): confirmed; relabeled HAR as 2$\times$500 (1 hidden layer of 500 + output layer) throughout.
  The networks marked in the PGD column are PGD-trained~\cite{madry2018}.
 We use two network architectures following \baseline (3$\times$50 and \emph{conv1}),
 two wider and larger networks, 3$\times$100 and \emph{conv4}
@@ -76,7 +76,7 @@ For the rest, we train $\Npre$ with Adam and then fine-tune it with a single ite
     \midrule
     CIFAR-10 & \emph{conv4} & 2 conv (stride 1 and 4) + 2 FC & 8910 & \checkmark \\
     \midrule
-    HAR & 1$\times$500 & 1 FC layer & 500 & \\
+    HAR & 2$\times$500 & 2 FC layers & 500 & \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -154,7 +154,7 @@ CIFAR-10 \emph{conv4} ($\tau{=}0.7$) & 50.4\% & 48.2\% & 51.5\% & 51.7\% \\
 CIFAR-10 \emph{conv4} ($\tau{=}0.3$) & 46.6\% & 26.6\% & 49.9\% & 46.7\% \\
 CIFAR-10 \emph{conv4} ($\tau{=}0.2$) & 46.6\% & 26.6\% & 46.6\% & 23.1\% \\
 CIFAR-10 \emph{conv4} ($\tau{=}0.0$) & 0.0\% & $-2.9$\% & 0.0\% & $-2.9$\% \\
-HAR 1$\times$500 & 0.0\% & $-0.0$\% & 0.0\% & $-0.2$\% \\
+HAR 2$\times$500 & 0.0\% & $-0.0$\% & 0.0\% & $-0.2$\% \\
 \bottomrule
 \end{tabular}
 \end{table}
