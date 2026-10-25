@@ -46,7 +46,6 @@ verifiers share the Gurobi parameters and the hyper-adversarial attack.
 
 Experiments ran on a dual AMD EPYC 7713 server with 2\,TB RAM and eight A100 GPUs (Ubuntu 20.04.1).
 Table~\ref{tab:networks} summarizes the networks and the dataset each one is trained on. The \#Neurons column counts the hidden ReLU neurons, and the Architecture column counts the output layer as an FC layer. For example, 3$\times$50 has two hidden layers of 50 neurons and an output layer.%
-% ANSWER (Neta): confirmed; relabeled HAR as 2$\times$500 (1 hidden layer of 500 + output layer) throughout.
  The networks marked in the PGD column are PGD-trained~\cite{madry2018}.
 We use two network architectures following \baseline (3$\times$50 and \emph{conv1}),
 two wider and larger networks, 3$\times$100 and \emph{conv4}

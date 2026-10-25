@@ -55,11 +55,10 @@ boundaries by symbolic verification to identify adversarial regions,
 but it requires a custom activation function, so it does not apply to
 a network trained in the usual way~\citep{sun2022deepglobal}.
 \citet{athavale2024} verify global robustness by self-composition and
-a softmax abstraction, which yields sound but not tight bounds, and a
-bound that is not tight flags inputs as vulnerable that an exact
-analysis would clear.%
-% TODO (Dana): The AI review of the AAAI submission asked for sharper positioning against \citet{athavale2024}. Add one sentence on how their property and guarantee differ from ours (e.g., checking a given confidence level vs.\ computing the minimal bound, softmax abstraction vs.\ exact encoding), after checking their paper.
- \baseline{} computes the minimal globally robust
+a softmax abstraction. Their analysis is sound, but its precision is
+bounded by an over-approximation error that grows with the number of
+classes.
+\baseline{} computes the minimal globally robust
 bound exactly, by mixed-integer programming, dependency analysis and a
 hyper-attack, and it is an anytime verifier, that is, it returns the
 bounds it has proved so far when it is stopped~\citep{kabaha2024vhagar}.
@@ -78,12 +77,9 @@ the one of \baseline.
 \section{Relaxations}
 \label{sec:related-relaxations}
 
-An exact encoding of the problem%
-% TODO (Dana): Neta: which problem? Name it, e.g., local or global robustness verification.
- costs a binary variable per
-undecided neuron%
-% TODO (Dana): Neta: ``undecided'' is a new term. Use ``unstable'', as in Chapter~\ref{ch:background}.
-, so the search space grows exponentially with the number of unstable neurons. To
+An exact encoding of either the global or the local robustness
+verification problem costs a binary variable per
+unstable neuron, so the search space grows exponentially with the number of unstable neurons. To
 overcome this, many verifiers use relaxations, which replace the
 binary variable that encodes a neuron exactly with a convex region
 that constrains it. The triangle relaxation
@@ -103,9 +99,13 @@ variables~\citep{depalma2021}. \citet{wang2022} over-approximate their encoding 
 However, except for \citet{wang2022}, none of these relaxations relies on the two copies $N$ and
 $N^{p}$ of the global robustness setting, and on the relation between
 $z_{m,k}$ and $z^{p}_{m,k}$, to obtain a tighter region.
-\citet{wang2022} encode the two copies with extra dependencies between them, and over-approximate this encoding by network decomposition and a linear-program relaxation, so their bound is sound but not exact. \tool relaxes only the neurons whose phase is nearly determined, conditions the relaxation of a neuron in one copy on the phase of its counterpart in the other copy, and encodes the remaining neurons exactly.
-%
-% TODO (Dana): Neta, double-check this description of \citet{wang2022} (interleaving twin-network MILP, network decomposition, LP relaxation with refinement) against their paper. The AI review of the AAAI submission asked for this positioning.
+\citet{wang2022} encode the two copies with extra dependencies between them, and over-approximate this encoding by network decomposition and a linear-program relaxation, so their bound is sound but not exact.
+\citet{wang2022} also constrain the difference between the clean and
+the perturbed copy at every neuron, but they relax that difference
+along with the ReLUs, and decide which binaries to keep from each
+neuron's own bounds alone. \tool uses the difference itself, together
+with the other copy's binary, to narrow the interval each triangle is
+drawn over, so its relaxation is much tighter.
 
 
 \section{Incremental Verification}
@@ -145,8 +145,6 @@ local robustness verifiers~\citep{liu2021algorithms}.
 ReluVal carries linear expressions over the input instead of constants, which
 keeps the dependencies that plain intervals lose~\citep{wang2018reluval},
 but it too is defined over a single network and a single input.
-
-
 Intervals serve global properties as well. Fairify verifies
 individual fairness, a property of every pair of similar inputs, and
 uses interval arithmetic to decide the neurons that stay inactive
@@ -154,8 +152,6 @@ over a part of the input domain~\citep{biswas2023fairify}, and global
 specifications in general can be reduced to ordinary ones by
 composing two copies of the network and handing the composition to an
 existing verifier~\citep{boetius2023hyperproperties}.
-%
-% TODO (Dana): Neta: avoid orphan paragraphs. The first two paragraphs of this section are too short. Extend or merge them.
 
 
 Differential verification propagates divergence bounds between
