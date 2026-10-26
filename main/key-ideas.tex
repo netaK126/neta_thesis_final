@@ -70,7 +70,7 @@ identify the linear neurons $z_{m,k}$ and $z^{p}_{m,k}$, which reduce the comple
 encoding. We propose to tighten these bounds with a \emph{zonotope}, a popular abstract domain for over-approximating
 networks in local robustness~\cite{gehr2018,singh2018fast,singh2019,mirman2018differentiable} and
 recently proposed for certifying global robustness~\cite{athavale2026differential}. Unlike that certification, which speeds up verification at the cost of precision, \tool adds the
-zonotope only to tighten $[l_{m,k},u_{m,k}]$ and $[l^{p}_{m,k},u^{p}_{m,k}]$, making more neurons linear or near-decided
+zonotope only to tighten $[l_{m,k},u_{m,k}]$ and $[l^{p}_{m,k},u^{p}_{m,k}]$, making more neurons linear or near-stable
 (enabling our relaxation), without sacrificing precision, which would flag more
 inputs as non-robust. Note that our zonotope abstraction complements the perturbation-difference interval: it bounds the
 \emph{values} of each neuron rather than the \emph{difference} between the two copies.

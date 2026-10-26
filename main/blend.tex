@@ -52,7 +52,7 @@ bound, tightening the neuron's range. In transfer mode, it further tightens each
 intersecting it with $\Npre$'s verified bounds shifted by a difference zonotope. It then encodes each
 neuron according to its bound
 $[l_{m,k},u_{m,k}]$, and similarly $[l^{p}_{m,k},u^{p}_{m,k}]$: if the bound decides the ReLU, that is
-$z_{m,k}=\hat z_{m,k}$ or $z_{m,k}=0$, it adds a linear constraint; if the bound is near-decided, it adds
+$z_{m,k}=\hat z_{m,k}$ or $z_{m,k}=0$, it adds a linear constraint; if the bound is near-stable, it adds
 a triangle or conditional-triangle relaxation; otherwise it adds a binary variable and the constraints defined by
 \citet{tjeng2019}. Additionally, it adds the perturbation-difference interval and the zonotope bounds
 to $\varphi$ to prune its search space. In parallel, \tool runs a PGD hyper-attack, as in \baseline~\cite{kabaha2024vhagar}, that yields a
@@ -108,10 +108,8 @@ network zonotope bounds $[l_{m,k},u_{m,k}]$${}=[l^{p}_{m,k},u^{p}_{m,k}]$, which
 mode, a second zonotope bounds how much each of $N$'s pre-activations can differ from $\Npre$'s
 (Line~9), and \tool tightens each copy's bounds by intersecting them with $\Npre$'s verified bounds
 shifted by that difference (Lines~10--11). It then bounds each copy's pre-activation by
-$[l_{m,k},u_{m,k}]$ and $[l^{p}_{m,k},u^{p}_{m,k}]$ (Lines~12--13). It then propagates the perturbation difference through the ReLU (Line~14), using three cases that we shortly explain in Section~\ref{sec:blend-pert-diff}.%
-% TODO (Dana): Neta: I moved the ReLU rule of the difference interval from Line~8 to Line~14, after the bounds are known, and wrote its three cases. Please check that this is correct.
-\Danawarn{Neta, still open: could you confirm that the ReLU rule at Line~14 is correct?}
- If at least one copy is unstable (Line~15), \tool computes its relaxation gap (Line~16).
+$[l_{m,k},u_{m,k}]$ and $[l^{p}_{m,k},u^{p}_{m,k}]$ (Lines~12--13). It then propagates the perturbation difference through the ReLU (Line~14), using three cases that we shortly explain in Section~\ref{sec:blend-pert-diff}. 
+If at least one copy is unstable (Line~15), \tool computes its relaxation gap (Line~16). 
 If every copy is either stable or has gap at most $\tau$, it replaces each unstable copy's ReLU
 with the triangle relaxation and couples the copies via the difference constraint (Line~17).
 If both copies are unstable and only one has gap at most $\tau$, it applies the
@@ -121,16 +119,16 @@ Otherwise it keeps the binaries of the unstable copies, couples the copies with 
 from the attack's hints and (if available) $\Npre$'s optimal input $x^{\mathrm{pre}*}$ (Line~21). \tool then adds \baseline's
 dependency constraints between the two copies (Line~22). After it completes encoding, it adds the objective $\max\hat\delta_{c_t}$ over $\varphi$ (Line~23).
 Then it submits to a solver to compute the maximal non-robust bound,
-which returns the bounds $[\delta_l,\delta_u]$ (Line~24). \dadd{For
-$\tau{=}0$ the encoding is exact, and both bounds hold on
+which returns the bounds $[\delta_l,\delta_u]$ (Line~24).
+
+The encoding is exact when $\tau{=}0$, and both bounds hold on
 $\hat\delta_{c_t}$. For $\tau>0$ it is a relaxation: every solution of
 the exact encoding satisfies $\varphi$, so the optimum of $\varphi$ is
 at least $\hat\delta_{c_t}$ and $\delta_u$ bounds it soundly from
 above. A feasible solution of $\varphi$, however, need not satisfy the
 exact encoding, so $\delta_l$ may exceed $\hat\delta_{c_t}$. The sound
 lower bound is then $\delta^{\mathrm{HA}}$, which the hyper-attack
-obtains from an actual input pair and which Line~3 adds to $\varphi$.}
-\Dana{Neta, could you start a new paragraph before ``For $\tau{=}0$\,\ldots''? It switches from what each line does to the tightness of the analysis, and the transition is abrupt without a break.}
+obtains from an actual input pair and which Line~3 adds to $\varphi$.
 
 We next formalize each of these components.
 
@@ -177,24 +175,21 @@ per-neuron interval-arithmetic bound to obtain the tighter $[l_{m,k},u_{m,k}]$. 
 zonotope from the first fully connected layer onward, bounding the convolutional layers with interval
 arithmetic. For transfer, \tool builds
 another zonotope whose interval $[d^{\downarrow}_{m,k},d^{\uparrow}_{m,k}]$ bounds how far $N$'s
-pre-activations are from $\Npre$'s (the clean copy via $z_{m,k}-z^{\mathrm{pre}}_{m,k}$, the perturbed
-via $z^{p}_{m,k}-z^{\mathrm{pre},p}_{m,k}$).%
-% TODO (Dana): Neta, shouldn't these be the pre-activations, i.e., with hats ($\hat z_{m,k}-\hat z^{\mathrm{pre}}_{m,k}$ and $\hat z^{p}_{m,k}-\hat z^{\mathrm{pre},p}_{m,k}$)?
-\Danawarn{Neta, still open: should the difference zonotope be over pre-activations (with hats)?}
+pre-activations are from $\Npre$'s (the clean copy via $\hat z_{m,k}-\hat z^{\mathrm{pre}}_{m,k}$, the perturbed
+via $\hat z^{p}_{m,k}-\hat z^{\mathrm{pre},p}_{m,k}$).%
  It then tightens both bounds, $[l_{m,k},u_{m,k}]$ and $[l^{p}_{m,k},u^{p}_{m,k}]$, by intersecting each
-with $\Npre$'s verified bounds of the matching copy, shifted by the difference, e.g.,
+with $\Npre$'s verified bounds of the matching copy, shifted by the difference, e.g., for $\hat z_{m,k}$
 \begin{equation}
  [l_{m,k},u_{m,k}]\cap([l^{\mathrm{pre}}_{m,k},u^{\mathrm{pre}}_{m,k}]+[d^{\downarrow}_{m,k},d^{\uparrow}_{m,k}])
  \label{eq:transfer-intersection}
 \end{equation}
-for $z_{m,k}$.\par}
-\Dana{Neta, ``for $z_{m,k}$'' sitting alone after the equation looks orphaned. Could you fold it into the sentence, e.g., ``\ldots shifted by the difference. For example, for $z_{m,k}$:'' before the equation, and drop the dangling line?}
+
 
 \section{Conditional-Triangle Relaxation}
 \label{sec:blend-condtri}
 
 We next formalize the conditional-triangle relaxation.
-\tool replaces the exact, binary encoding of a near-decided ReLU with a triangle tied to the other copy.
+\tool replaces the exact, binary encoding of a near-stable ReLU with a triangle tied to the other copy.
 It does so when the triangle area, normalized by the pre-activation range,
 $\tfrac{u\,\lvert l\rvert}{2(u-l)}$, is at most a hyperparameter $\tau$. The normalization lets a single
 $\tau$ apply to all neurons, which have different interval widths. Either $z_{m,k}$ or $z^{p}_{m,k}$ may be replaced.
@@ -220,27 +215,26 @@ Otherwise, if $a^{p}_{m,k}=0$:
  \label{eq:condtri-inactive-bounds}
 \end{equation}
 Given these bounds and the variable $a^{p}_{m,k}$ (whose value is unknown when \tool
-constructs the MIP), our new conditional encoding captures both \dadd{branches} simultaneously:
+constructs the MIP), our new conditional encoding captures both branches simultaneously:
 \begin{equation}
 \begin{aligned}
  z_{m,k} &\ge 0, \qquad z_{m,k} \ge \hat z_{m,k}, \\
- z_{m,k} &\le \tfrac{u_A}{u_A - l_A}\bigl(\hat z_{m,k} - l_A\bigr) + \dadd{M_{m,k}}(1 - a^{p}_{m,k}), \\
- z_{m,k} &\le \tfrac{u_I}{u_I - l_I}\bigl(\hat z_{m,k} - l_I\bigr) + \dadd{M_{m,k}}\,a^{p}_{m,k},
+ z_{m,k} &\le \tfrac{u_A}{u_A - l_A}\bigl(\hat z_{m,k} - l_A\bigr) + M_{m,k}(1 - a^{p}_{m,k}), \\
+ z_{m,k} &\le \tfrac{u_I}{u_I - l_I}\bigl(\hat z_{m,k} - l_I\bigr) + M_{m,k}\,a^{p}_{m,k},
 \end{aligned}
 \label{eq:condtri-encoding}
 \end{equation}
-\dadd{where $M_{m,k}=u_{m,k}+\lvert l_{m,k}\rvert$.} Intuitively, the middle constraint sets the
+where $M_{m,k}=u_{m,k}+\lvert l_{m,k}\rvert$. Intuitively, the middle constraint sets the
 triangle when $a^{p}_{m,k}=1$, and the bottom constraint sets it otherwise.
 
-\Dana{Neta, ``decided'' is not defined in the thesis. Do you mean ``stable'' (which is defined in Section~2.3)?}
-\dadd{The conditioning may leave a branch's interval decided, and there the triangle is not
+The conditioning may leave a branch's interval stable, and there the triangle is not
 sound: its upper edge passes through $(l,0)$, which falls below $\relu(l)$ when
 $l\ge 0$. We therefore substitute, for that branch, the tightest linear bound on $\relu$
 over its interval. If $l_A\ge 0$, the ReLU is the identity on $[l_A,u_A]$ and the active
 constraint becomes $z_{m,k}\le \hat z_{m,k}+M_{m,k}(1-a^{p}_{m,k})$; if $u_A\le 0$, the
 ReLU is zero there and it becomes $z_{m,k}\le M_{m,k}(1-a^{p}_{m,k})$; and if $[l_A,u_A]$
 is empty, the branch is infeasible. The inactive constraint is substituted in the same way
-from $[l_I,u_I]$, independently of the active one.}
+from $[l_I,u_I]$, independently of the active one.
 
 
 \subsection{Soundness}
@@ -414,7 +408,5 @@ agree, or when the hyper-attack has not set the hint.
 $x^{p}=P(x,e)$ with $e\le\ep$ and $x,x^{p}\in[0,1]^n$. Second, \tool runs the dependency analysis to
 form $\varphi_{\mathrm{dep}}$: for neurons whose activation is monotone under the
 perturbation, it adds $z^{p}_{m,k}\bowtie z_{m,k}$ with $\bowtie\in\{\ge,\le,=\}$. Third, from the aforementioned hyper-attack, \tool
-adds the lower bound $\delta_{c_t}\ge\delta^{\mathrm{HA}}$.%
-% TODO (Dana): Neta, shouldn't this be $\hat\delta_{c_t}$, with a hat, as in the rest of the chapter?
-\Danawarn{Neta, still open: should this be $\hat\delta_{c_t}$, with a hat?}
+adds the lower bound ${\hat{\delta}}_{c_t}\ge\delta^{\mathrm{HA}}$.%
 

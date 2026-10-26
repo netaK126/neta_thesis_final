@@ -16,36 +16,40 @@ When all items are answered, commit and push.
 The text says "maximum of δ̂_{c_t}" but δ̂_{c_t} is defined as a sup. Should this be "supremum"?
 
 **Response:**
+I switched the definitions to supremum/infimum in the previous round, following your earlier comment above eq. 4.3. I have now switched them back to maximum/minimum, in eq. 4.3, in the Exact Verification formulation, and in the δ* definition, so the prose and the definitions agree. DONE
 
 ### 2. blend.tex:133 — Start new paragraph before τ=0
 The τ=0/τ>0 soundness discussion comes right after the line-by-line walkthrough. It should be a separate paragraph.
 
 **Response:**
+DONE
 
 ### 3. blend.tex:191 — "for z_{m,k}" orphaned after eq 5.2
 Fold "for z_{m,k}" into the sentence before the equation so it doesn't dangle alone.
 
 **Response:**
-
+DONE
 ### 4. blend.tex:235 — "decided" should be "stable"
 "decided" is not defined in the thesis. Do you mean "stable" (Section 2.3)?
 
 **Response:**
-
+you are right. i missed some in my previous fix. DONE.
 ### 5. conclusion.tex:35 — Section 7.1 opening
 The second sentence doesn't follow from the first. Suggested rewrite: "The first direction focuses on small perturbations, such as a brightness shift of ε=0.01. While this might seem simpler, it is not, since..."
 
 **Response:**
+DONE
 
 ### 6. conclusion.tex:53 — Section 7.2 title too long
 "Verifying New Perturbations in Global Robustness Settings" doesn't fit one line. Shorten it, e.g. "Supporting New Perturbation Types."
 
 **Response:**
-
+DONE
 ### 7. evaluation.tex:95 — 15-minute filter
 The sentence says easy instances are filtered, but in 30 of the 86 rows all three verifiers finish in under 15 minutes and those rows are in the averages. Apply the filter or drop the sentence.
 
 **Response:**
+We apply this filter only on the bar graphs, and I changed the text to match. DONE
 
 ---
 
@@ -55,6 +59,7 @@ The sentence says easy instances are filtered, but in 30 of the 86 rows all thre
 In the current tables, VHAGaR is faster mainly on MNIST conv1 under occlusion and translation. Update the text to match.
 
 **Response:**
+You are right. the paragraph was related to the old results before fixing some major bugs. however, i am not sure i find a trend. more like "statistic errors", because we do have instances for conv where blend win over vhagar. please go through what i wrote.
 
 ### 9. evaluation.tex:162 — τ=0.2 and τ=0.3 identical
 BLEND's rows at τ=0.2 and τ=0.3 are identical. Is it because no neuron has a triangle error between 0.2 and 0.3? If so, say so.
@@ -80,17 +85,19 @@ The four τ=0.5 transfer cells average 87.9 min, not 81.1. Check that the ablati
 I moved the ReLU rule of the difference interval from Line 8 to Line 14. Please confirm this is correct.
 
 **Response:**
+it is correct :)
 
 ### 14. blend.tex:182 — Pre-activations with hats
 Should the difference zonotope be over pre-activations (ẑ, with hats) rather than post-activation z?
 
 **Response:**
+You are right. DONE
 
 ### 15. blend.tex:418 — δ_{c_t} with hat
 Should this be δ̂_{c_t}, with a hat, as in the rest of the chapter?
 
 **Response:**
-
+you are right. DONE
 ### 16. abstract.tex:62 — Hebrew abstract
 The Hebrew abstract is about 290 words. Extend to at least 1,000 words.
 
