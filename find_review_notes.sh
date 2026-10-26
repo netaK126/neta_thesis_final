@@ -41,10 +41,20 @@ echo "To compile: latexmk -xelatex thesis.tex"
 echo "Red = Dana's new comments. Orange = old TODOs you haven't addressed yet."
 echo ""
 echo "HOW TO RESPOND:"
-echo "  1. Open review_responses.md"
-echo "  2. For each item, write your response next to 'Response:'"
-echo "     - If fixed: write 'done' and remove the \\Dana{}/\\Danawarn{} from the .tex file"
-echo "     - If you disagree or have a question: write your answer"
+echo "  1. For each \\Dana{}/\\Danawarn{} note in the .tex files:"
+echo "     Add \\Neta{your answer} right after it (renders in GREEN in the PDF)."
+echo "     Write 'done' if you fixed it, or your answer if you disagree."
+echo "  2. Also fill in review_responses.md (same answers)."
 echo "  3. After fixing, unwrap \\dadd{text} -> text, delete \\dremove{text}"
-echo "  4. Commit review_responses.md and push"
-echo "  5. Do NOT leave any item blank."
+echo "  4. Run ./check_style.sh to catch typos"
+echo "  5. Commit and push. Every item must have a response."
+echo ""
+echo "--- NETA'S RESPONSES (green, \\Neta) ---"
+NETA=$(grep -rn '\\Neta{' main/ front/ back/ --include="*.tex" \
+  | grep -v '^\s*%' | grep -v 'newcommand' \
+  | sed 's/.*\(main\|front\|back\)/\1/')
+if [ -n "$NETA" ]; then
+  echo "$NETA" | nl -ba
+else
+  echo "  None yet."
+fi

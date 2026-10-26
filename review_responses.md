@@ -1,11 +1,15 @@
 # Dana's Review — Neta's Responses
 
-For each item below, write your response next to **Response:**
-- If you fixed it, write `done` and remove the `\Dana{}`/`\Danawarn{}` from the tex file.
-- If you disagree or have a question, write your answer here.
+For each item, respond in **two places**:
+
+1. **In the PDF** — add `\Neta{your answer}` right after the `\Dana{}`/`\Danawarn{}` note in the .tex file. This renders in **green** so I can see it in the PDF.
+2. **In this file** — write your response next to `Response:` below.
+
+- If you fixed it: write `done` in both places.
+- If you disagree or have a question: write your answer in both places.
 - Do NOT leave any item blank.
 
-When all items are answered, commit this file and push.
+When all items are answered, commit and push.
 
 ---
 
