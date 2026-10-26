@@ -1,0 +1,105 @@
+{
+  "bd": {
+    "occ(14,14,9)|0|0": {
+      "transfer_pct": 11.9
+    },
+    "occ(14,14,9)|0|1": {
+      "transfer_pct": 11.87
+    },
+    "occ(14,14,9)|0|2": {
+      "transfer_pct": 8.34
+    },
+    "occ(14,14,9)|2|0": {
+      "transfer_pct": 0.36
+    },
+    "occ(14,14,9)|2|1": {
+      "transfer_pct": 0.71
+    },
+    "occ(14,14,9)|2|2": {
+      "transfer_pct": 0.24
+    },
+    "patch(1,14,14,3)|0|0": {
+      "transfer_pct": 4.69
+    },
+    "patch(1,14,14,3)|0|1": {
+      "transfer_pct": 0.07
+    },
+    "patch(1,14,14,3)|0|2": {
+      "transfer_pct": 0.53
+    },
+    "patch(1,14,14,3)|2|0": {
+      "transfer_pct": 0.4
+    },
+    "patch(1,14,14,3)|2|1": {
+      "transfer_pct": 0.13
+    },
+    "patch(1,14,14,3)|2|2": {
+      "transfer_pct": 0.16
+    }
+  },
+  "bd_insert": [
+    {
+      "c_t": 1,
+      "cs": "0",
+      "title": "patch(1,14,14,3)",
+      "val": {
+        "blend": 1.47,
+        "transfer": 4.69,
+        "vhagar": 30.53
+      }
+    }
+  ],
+  "cap_min": 180.0,
+  "net": "conv4, CIFAR-10",
+  "tau": 0.5,
+  "time": {
+    "occ(14,14,9)|0|0": {
+      "transfer_min": 180.0,
+      "transfer_pct": 11.9
+    },
+    "occ(14,14,9)|0|1": {
+      "transfer_min": 180.0,
+      "transfer_pct": 11.87
+    },
+    "occ(14,14,9)|0|2": {
+      "transfer_min": 180.0,
+      "transfer_pct": 8.34
+    },
+    "occ(14,14,9)|2|0": {
+      "transfer_min": 24.77,
+      "transfer_pct": 0.36
+    },
+    "occ(14,14,9)|2|1": {
+      "transfer_min": 40.01,
+      "transfer_pct": 0.71
+    },
+    "occ(14,14,9)|2|2": {
+      "transfer_min": 17.83,
+      "transfer_pct": 0.24
+    },
+    "patch(1,14,14,3)|0|0": {
+      "transfer_min": 180.0,
+      "transfer_pct": 4.69
+    },
+    "patch(1,14,14,3)|0|1": {
+      "transfer_min": 9.62,
+      "transfer_pct": 0.07
+    },
+    "patch(1,14,14,3)|0|2": {
+      "transfer_min": 128.01,
+      "transfer_pct": 0.53
+    },
+    "patch(1,14,14,3)|2|0": {
+      "transfer_min": 15.89,
+      "transfer_pct": 0.4
+    },
+    "patch(1,14,14,3)|2|1": {
+      "transfer_min": 7.22,
+      "transfer_pct": 0.13
+    },
+    "patch(1,14,14,3)|2|2": {
+      "transfer_min": 9.97,
+      "transfer_pct": 0.16
+    }
+  }
+}

@@ -254,6 +254,15 @@ def tidy_name(text):
     return arch, data
 
 
+# Network labels the thesis prints differently from the source charts. The
+# paper's charts name HAR's network 1x500; the thesis calls it 2x500, to match
+# the architecture convention the text states. That was a hand-edit to the
+# generated tikz, so a regeneration used to silently revert it -- applied here
+# instead, at EMIT time only, so the name the figures are SELECTED by (the
+# HAR_CIFAR filter, which matches what the pdf says) keeps working.
+NAME_FIXUPS = {(r"1$\times$500", "HAR"): (r"2$\times$500", "HAR")}
+
+
 def tidy_pert(name):
     """The perturbation, as the thesis writes it."""
     return name.replace("\u2113\u221e", r"$\ell_\infty$").replace("occ", "occlusion")
@@ -343,6 +352,57 @@ MIDSIZE = r"\fontsize{9}{10.5}\selectfont"
 
 FILL = {"transfer": "blendtr", "blend": "blendpl", "vhagar": "vhagarcol"}
 
+#: Clearance kept between two neighbouring size labels, in points. Generous
+#: on purpose: _text_w only estimates the set width, so the slack has to
+#: cover the estimate being a little low.
+SIZE_PAD = 7.0
+
+
+def _size_label(cell):
+    _pert, _, size = cell["title"].partition("(")
+    return "(" + size if size else ""
+
+
+def _text_w(s):
+    """Rough width of a size label set at MIDSIZE (9pt), in points.
+
+    Digits carry the width, commas and parentheses much less. Only used to
+    decide whether two labels would touch, so an estimate is enough.
+    """
+    return sum(2.3 if c == "," else 3.0 if c in "()" else 4.5 for c in s)
+
+
+def _size_pads(nets, bar):
+    """{(net index, pair index): extra gap} so two size labels never collide.
+
+    A block one class pair wide can be far narrower than the size that names
+    it -- conv4's single patch pair is ~14pt under a ~40pt '(1,14,14,3)' --
+    and the gap rule only looks at c_s, so two perturbations of one network
+    sit a PAIR_GAP apart and their labels run into each other. Widen just
+    those boundaries, by just enough: every figure without a collision is
+    laid out exactly as before.
+    """
+    out = {}
+    for ni, net in enumerate(nets):
+        runs = []
+        for pi, cell in enumerate(net):
+            lab = _size_label(cell)
+            if runs and runs[-1][2] == lab:
+                runs[-1][1] = pi
+            else:
+                runs.append([pi, pi, lab])
+        for a, b in zip(runs, runs[1:]):
+            na, nb = a[1] - a[0] + 1, b[1] - b[0] + 1
+            wa = na * 3 * bar + (na - 1) * PAIR_GAP
+            wb = nb * 3 * bar + (nb - 1) * PAIR_GAP
+            g = (PAIR_GAP if net[a[1] + 1]["cs"] == net[a[1]]["cs"]
+                 else CS_GAP)
+            need = (_text_w(a[2]) + _text_w(b[2])) / 2.0 + SIZE_PAD
+            natural = wa / 2.0 + g + wb / 2.0
+            if need > natural:
+                out[(ni, a[1])] = need - natural
+    return out
+
 
 def emit(nets, K):
     pairs = sum(len(n) for n in nets)
@@ -351,8 +411,16 @@ def emit(nets, K):
     blocks = sum(sum(1 for _ in itertools.groupby(n, key=lambda c: c["cs"]))
                  for n in nets)
     reserve = AXIS_L + (AXIS_R if K["right"] else 6.0)
-    fixed = (pairs - blocks) * PAIR_GAP + (blocks - len(nets)) * CS_GAP \
+    base_fixed = (pairs - blocks) * PAIR_GAP + (blocks - len(nets)) * CS_GAP \
         + NET_GAP[0] * (len(nets) - 1)
+    # The label pads depend on the bar width and the bar width on the pads, so
+    # settle them together; it converges at once, the pads being a few points.
+    pads, fixed = {}, base_fixed
+    for _ in range(3):
+        bar = max(BAR_MIN,
+                  min(BAR, (BUDGET - reserve - fixed) / (pairs * 3)))
+        pads = _size_pads(nets, bar)
+        fixed = base_fixed + sum(pads.values())
     bar = min(BAR, (BUDGET - reserve - fixed) / (pairs * 3))
     bar = max(BAR_MIN, bar)
     content = sum(len(n) * 3 * bar for n in nets) + fixed \
@@ -418,6 +486,7 @@ def emit(nets, K):
             spans.append(["cs", cell["cs"], start, x])
             if pi < len(net) - 1:
                 x += PAIR_GAP if net[pi + 1]["cs"] == cell["cs"] else CS_GAP
+                x += pads.get((ni, pi), 0.0)
         spans.append(["net", net[0]["net"], net_start, x])
         if ni < len(nets) - 1:
             x += gap
@@ -476,7 +545,7 @@ def emit(nets, K):
             add(r"  \node[below,inner sep=1.5pt,font=%s] at (%.2f,-3) "
                 r"{$c_s{=}%s$};" % (MIDSIZE, mid, key))
         else:
-            arch, data = tidy_name(key)
+            arch, data = NAME_FIXUPS.get(tidy_name(key), tidy_name(key))
             add(r"  \node[below,align=center,inner sep=1pt,font=%s\bfseries] "
                 r"at (%.2f,%.2f) {%s\\%s};"
                 % (MIDSIZE, mid, name_y, arch, data))
@@ -506,11 +575,121 @@ def merge(spans):
     return out
 
 
+CORRECTIONS = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                           "conv4_corrections.json")
+
+
+def load_corrections(enabled=True):
+    """The conv4 overrides, or {} when disabled or absent.
+
+    The source pdfs still carry conv4's pre-fix tau=0.5 transfer runs, so the
+    numbers recovered from them are corrected here before anything is drawn.
+    tools/emit_conv4_corrections.py writes the file from the pinned source
+    map, so these figures and the per-cell tables cannot drift apart.
+    """
+    if not enabled or not os.path.exists(CORRECTIONS):
+        return {}
+    import json
+    with open(CORRECTIONS, encoding="utf-8") as fh:
+        return json.load(fh)
+
+
+def apply_corrections(nets, K, corr, kind):
+    """Override conv4's tau=0.5 numbers and re-partition the pair that moved.
+
+    A class pair where all three methods reach the cap is a bound-difference
+    instance, not a solve-time one: the two figure families partition the
+    pairs between them. Correcting the numbers can therefore move a pair, and
+    conv4/patch/c_s=0/c_t=1 is exactly that case -- its transfer run went from
+    168.5 min to a 180 min timeout, so it leaves the solve-time figure and
+    joins the bound-difference one.
+
+    Cells carry no c_t of their own, so a pair is addressed by its position
+    left to right inside its (title, c_s) group, which IS c_t ascending.
+    """
+    if not corr:
+        return nets, []
+    fixes, moved = corr.get(kind, {}), []
+    for net in nets:
+        if net[0]["net"] != corr["net"]:
+            continue
+        seen = {}
+        for cell in net:
+            g = (cell["title"], str(cell["cs"]))
+            idx = seen[g] = seen.get(g, -1) + 1
+            fix = fixes.get(f"{g[0]}|{g[1]}|{idx}")
+            if not fix:
+                continue
+            if kind == "time":
+                cell["val"]["transfer"] = fix["transfer_min"]
+                if len(cell["pct"]) == 3:
+                    cell["pct"][0] = fix["transfer_pct"]
+            else:
+                cell["val"]["transfer"] = fix["transfer_pct"]
+
+    if kind == "time":
+        full = K["full"]
+        for net in nets:
+            keep = []
+            for cell in net:
+                if all(v >= full - 1e-6 for v in cell["val"].values()):
+                    moved.append((cell["net"], cell["title"], cell["cs"]))
+                    continue
+                keep.append(cell)
+            net[:] = keep
+        return [n for n in nets if n], moved
+
+    # bd: add the pairs that crossed over, in the canonical perturbation order
+    for ins in corr.get("bd_insert", ()):
+        for net in nets:
+            if net[0]["net"] != corr["net"]:
+                continue
+            cell = {"lo": 0.0, "hi": 0.0, "mid": 0.0, "pct": [],
+                    "val": dict(ins["val"]), "title": ins["title"],
+                    "cs": ins["cs"], "net": corr["net"]}
+            at = next((i for i, c in enumerate(net)
+                       if _pert_rank(c["title"]) > _pert_rank(ins["title"])),
+                      len(net))
+            net.insert(at, cell)
+            moved.append((corr["net"], ins["title"], ins["cs"]))
+            break
+    return nets, moved
+
+
+#: The order the paper lists perturbations in (_AAAI_PERT_ORDER), so an
+#: inserted block lands where a regenerated figure would have put it.
+_PERT_ORDER = ("linf", "brightness", "contrast", "patch", "occ",
+               "translation", "rotation")
+
+
+def _pert_rank(title):
+    name = title.split("(")[0].strip()
+    name = {"occlusion": "occ"}.get(name, name)
+    return _PERT_ORDER.index(name) if name in _PERT_ORDER else len(_PERT_ORDER)
+
+
 def main():
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--verify", action="store_true",
+                    help="emit with corrections OFF, for diffing against the "
+                         "committed figures")
+    args = ap.parse_args()
+    corr = load_corrections(not args.verify)
+    if corr:
+        print("[time-figures] corrections: %d time, %d bd, %d moved pair(s)"
+              % (len(corr.get("time", {})), len(corr.get("bd", {})),
+                 len(corr.get("bd_insert", ()))))
+    elif not args.verify:
+        print("[time-figures] no corrections file -- drawing the pdfs as-is")
+
     for out, sources, selections, kind in FIGURES:
         K = KINDS[kind]
         nets = [net for keep, rng in selections
                 for net in collect(sources, keep, rng, K)]
+        nets, moved = apply_corrections(nets, K, corr, kind)
+        for m in moved:
+            print("     moved: %s %s c_s=%s" % m)
         tex, total = emit(nets, K)
         with open(os.path.join(GRAPHICS, out), "w") as fh:
             fh.write(tex)
