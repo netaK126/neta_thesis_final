@@ -32,8 +32,8 @@ robustness verifier. Like \baseline, \tool solves the mixed-integer
 program with Gurobi~\citep{gurobi} under a three-hour timeout, with
 MIPGap${=}0.01$, MIPFocus${=}3$, Threads${=}32$, Seed${=}4$, and
 Cutoff${=}\delta^{\mathrm{HA}}$, the bound of the hyper-adversarial
-attack. \dadd{The one exception is the MNIST 3$\times$100 runs with
-$c_s{\in}\{0,4\}$, which ran under a five-hour timeout.}
+attack. The one exception is the MNIST 3$\times$100 runs with
+$c_s{\in}\{0,4\}$, which ran under a five-hour timeout.
 For the contrast perturbation, which multiplies two variables,
 we set NonConvex${=}2$. For the conditional-triangle relaxation, we
 set $\tau{=}0.5$. The results of \baseline are obtained by our
@@ -75,7 +75,7 @@ For the rest, we train $\Npre$ with Adam and then fine-tune it with a single ite
     \midrule
     CIFAR-10 & \emph{conv4} & 2 conv (stride 1 and 4) + 2 FC & 8910 & \checkmark \\
     \midrule
-    HAR & \dremove{1}$\dadd{2}\times$500 & \dremove{1}\dadd{2} FC layers & 500 & \\
+    HAR & 2$\times$500 & 2 FC layers & 500 & \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -102,7 +102,7 @@ show, for each network, perturbation and class pair, the time of the
 three verifiers as bars and the tightness of their analysis as a black
 line, a box per perturbation and group of networks. Figures~\ref{fig:n2-bounddiff-app}--\ref{fig:n2-bounddiff-app-3}
 show the tightness alone, on the hardest instances, where all three
-verifiers reach the \dremove{three-hour} timeout and the time no longer
+verifiers reach the timeout and the time no longer
 separates them. The detailed tables report the individual experiments,
 and they come in two kinds: the timeout tables (Tables~\ref{tab:mnist-timeout}, \ref{tab:fashion-timeout}, \ref{tab:cifar-timeout} and~\ref{tab:har-timeout}), which give the bounds
 $\dlo$ and $\dup$ of each verifier and the ratio of the bound
@@ -115,7 +115,7 @@ test over these per-instance ratios.
 The results show that, on the class pairs where at least one verifier solves, \tool computes its
 bound $7.6\times$ faster than \baseline on average (up to $102.6\times$), and $12.4\times$ faster
 (up to $115.4\times$) with transfer. On the most challenging
-instances, where all three approaches reach the \dremove{three-hour} timeout, only the tightness differs.
+instances, where all three approaches reach the timeout, only the tightness differs.
 There, \tool's bound difference is $19.9\times$ smaller than \baseline's on average,
 and $20.9\times$ smaller with transfer; both reach $261.2\times$ at best.
 The following sections provide additional results and individual experiment results.
@@ -154,7 +154,7 @@ CIFAR-10 \emph{conv4} ($\tau{=}0.7$) & 50.4\% & 48.2\% & 51.5\% & 51.7\% \\
 CIFAR-10 \emph{conv4} ($\tau{=}0.3$) & 46.6\% & 26.6\% & 49.9\% & 46.7\% \\
 CIFAR-10 \emph{conv4} ($\tau{=}0.2$) & 46.6\% & 26.6\% & 46.6\% & 23.1\% \\
 CIFAR-10 \emph{conv4} ($\tau{=}0.0$) & 0.0\% & $-2.9$\% & 0.0\% & $-2.9$\% \\
-HAR \dremove{1}$\dadd{2}\times$500 & 0.0\% & $-0.0$\% & 0.0\% & $-0.2$\% \\
+HAR 2$\times$500 & 0.0\% & $-0.0$\% & 0.0\% & $-0.2$\% \\
 \bottomrule
 \end{tabular}
 \end{table}

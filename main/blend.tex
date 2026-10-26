@@ -64,7 +64,7 @@ its binaries. In transfer mode, \tool looks at the activation phase of every neu
 \small
 \caption{\protect\BLEND{$N$, $c$, $c_t$, $P$, $\ep$, $\Npre$}}\label{alg:blend}
 \KwIn{classifier $N$; source class $c$, target class $c_t$; perturbation $P$ and limit $\ep$; and, in transfer mode, $\Npre$ with its verified bounds $[l^{\mathrm{pre}}_{m,k},u^{\mathrm{pre}}_{m,k}]$ and $[l^{p,\mathrm{pre}}_{m,k},u^{p,\mathrm{pre}}_{m,k}]$, and optimal input $x^{\mathrm{pre}*}$}
-\KwOut{anytime bounds $[\delta_l,\delta_u]$ \dadd{for the problem's objective, where $\delta_u$ soundly upper-bounds $\hat\delta_{c_t}$ when $\tau>0$}}
+\KwOut{anytime bounds $[\delta_l,\delta_u]$ for the problem's objective, where $\delta_u$ soundly upper-bounds $\hat\delta_{c_t}$ when $\tau>0$}
 $\varphi=$ MIP encoding of $N(x),N(x^{p})$\;
 $(\delta^{\mathrm{HA}},a^{\mathrm{pgd}})=\PGD{$N,c,c_t,P,\ep$}$\;
 $\varphi\wedge\{\hat\delta_{c_t}\ge\delta^{\mathrm{HA}}\}$\;
@@ -151,8 +151,8 @@ $[\Delta^{\hat z,\downarrow}_{m,k},\Delta^{\hat z,\uparrow}_{m,k}]$ after the af
 $\hat z_{m,k}$ is obtained from the previous layer's intervals by interval arithmetic, and the interval
 after the ReLU, $[\Delta^{z,\downarrow}_{m,k},\Delta^{z,\uparrow}_{m,k}]$, depends on the neuron's
 stability: it is $[\Delta^{\hat z,\downarrow}_{m,k},\Delta^{\hat z,\uparrow}_{m,k}]$ if both copies are
-\dadd{stable with $l_{m,k}\ge 0$ and $l^{p}_{m,k}\ge 0$, so that each ReLU is the identity};
-$[0,0]$ if both are \dadd{stable with $u_{m,k}\le 0$ and $u^{p}_{m,k}\le 0$, so that each ReLU is zero}; and
+stable with $l_{m,k}\ge 0$ and $l^{p}_{m,k}\ge 0$, so that each ReLU is the identity;
+$[0,0]$ if both are stable with $u_{m,k}\le 0$ and $u^{p}_{m,k}\le 0$, so that each ReLU is zero; and
 $[\min(0,\Delta^{\hat z,\downarrow}_{m,k}),\max(0,\Delta^{\hat z,\uparrow}_{m,k})]$ otherwise.
 
 
@@ -173,9 +173,9 @@ so that it covers both clean input $x$ and perturbed input $x^p$. Then, \tool in
  \label{eq:zonotope-interval}
 \end{equation}
 with the
-per-neuron interval-arithmetic bound to obtain the tighter $[l_{m,k},u_{m,k}]$. \dadd{\tool applies the
+per-neuron interval-arithmetic bound to obtain the tighter $[l_{m,k},u_{m,k}]$. \tool applies the
 zonotope from the first fully connected layer onward, bounding the convolutional layers with interval
-arithmetic.} For transfer, \tool builds
+arithmetic. For transfer, \tool builds
 another zonotope whose interval $[d^{\downarrow}_{m,k},d^{\uparrow}_{m,k}]$ bounds how far $N$'s
 pre-activations are from $\Npre$'s (the clean copy via $z_{m,k}-z^{\mathrm{pre}}_{m,k}$, the perturbed
 via $z^{p}_{m,k}-z^{\mathrm{pre},p}_{m,k}$).%
@@ -271,21 +271,21 @@ constraints. The first two, $z_{m,k}\geq 0$ and $z_{m,k}\geq \hat z_{m,k}$, hold
 immediately since they are also in the exact encoding. It remains to show the active and
 inactive constraints:
 \begin{align*}
- z_{m,k} &\le \tfrac{u_A}{u_A - l_A}\bigl(\hat z_{m,k} - l_A\bigr) + \dadd{M_{m,k}}(1 - a^{p}_{m,k}), \\
- z_{m,k} &\le \tfrac{u_I}{u_I - l_I}\bigl(\hat z_{m,k} - l_I\bigr) + \dadd{M_{m,k}}\,a^{p}_{m,k}.
+ z_{m,k} &\le \tfrac{u_A}{u_A - l_A}\bigl(\hat z_{m,k} - l_A\bigr) + M_{m,k}(1 - a^{p}_{m,k}), \\
+ z_{m,k} &\le \tfrac{u_I}{u_I - l_I}\bigl(\hat z_{m,k} - l_I\bigr) + M_{m,k}\,a^{p}_{m,k}.
 \end{align*}
 where
 $[l_A, u_A] = [l_{m,k}, u_{m,k}] \cap [-\Delta^{\hat z,\uparrow}_{m,k},\; u^{p}_{m,k} - \Delta^{\hat z,\downarrow}_{m,k}]$
 and
 $[l_I, u_I] = [l_{m,k}, u_{m,k}] \cap [l^{p}_{m,k} - \Delta^{\hat z,\uparrow}_{m,k},\; -\Delta^{\hat z,\downarrow}_{m,k}]$.
-\dadd{We split into scenarios by the signs of the endpoints of $[l_A,u_A]$, and separately by
+We split into scenarios by the signs of the endpoints of $[l_A,u_A]$, and separately by
 those of $[l_I,u_I]$, because the triangle bounds $\relu$ soundly only over an interval
 that straddles zero. If $l_A\geq 0$, then $\hat z_{m,k}\geq 0$ on the active branch,
 $\relu(\hat z_{m,k})=\hat z_{m,k}$, and the active constraint holds with equality. If
 $u_A\leq 0$, then $\relu(\hat z_{m,k})=0$ there and it holds with $0$. If $[l_A,u_A]$ is
 empty, the branch is infeasible and its constraint never binds. The same scenarios apply
 to $[l_I,u_I]$ and the inactive constraint. It remains to prove the scenario
-$l_A < 0 < u_A$ and $l_I < 0 < u_I$, where both constraints are triangles.} We split into
+$l_A < 0 < u_A$ and $l_I < 0 < u_I$, where both constraints are triangles. We split into
 two cases.
 
 \paragraph{Case $a^{p}_{m,k}=1$.}

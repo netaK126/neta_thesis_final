@@ -163,10 +163,10 @@ $x^{p} \in \mI_\ep(x)$ through constraints, for example in first-order
 logic~\citep{katz2019,katz2017reluplex} or in a mixed-integer
 linear program (MILP)~\citep{tjeng2019}. A solver then computes
 \[
-  \hat{\delta}_{c_t} = \dadd{\sup\; \delta}
+  \hat{\delta}_{c_t} = \sup\; \delta
   \quad \text{subject to} \quad
-  \dadd{x,\, x^{p} \in \mI_\ep(x),\;}
-  \dadd{\conf{N}{x}{c} \geq \delta,\;}
+  x,\, x^{p} \in \mI_\ep(x),\;
+  \conf{N}{x}{c} \geq \delta,\;
   \conf{N}{x^{p}}{c_t} > 0 .
 \]
 
