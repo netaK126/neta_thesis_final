@@ -55,9 +55,9 @@ boundaries by symbolic verification to identify adversarial regions,
 but it requires a custom activation function, so it does not apply to
 a network trained in the usual way~\citep{sun2022deepglobal}.
 \citet{athavale2024} verify global robustness by self-composition and
-a softmax abstraction. Their analysis is sound, but its precision is
+a softmax abstraction. \dadd{Their analysis is sound, but its precision is
 bounded by an over-approximation error that grows with the number of
-classes.
+classes.}
 \baseline{} computes the minimal globally robust
 bound exactly, by mixed-integer programming, dependency analysis and a
 hyper-attack, and it is an anytime verifier, that is, it returns the
@@ -77,9 +77,9 @@ the one of \baseline.
 \section{Relaxations}
 \label{sec:related-relaxations}
 
-An exact encoding of either the global or the local robustness
-verification problem costs a binary variable per
-unstable neuron, so the search space grows exponentially with the number of unstable neurons. To
+An exact encoding of \dadd{either the global or the local robustness
+verification problem} costs a binary variable per
+\dremove{undecided}\dadd{unstable} neuron, so the search space grows exponentially with the number of unstable neurons. To
 overcome this, many verifiers use relaxations, which replace the
 binary variable that encodes a neuron exactly with a convex region
 that constrains it. The triangle relaxation
@@ -100,12 +100,12 @@ However, except for \citet{wang2022}, none of these relaxations relies on the tw
 $N^{p}$ of the global robustness setting, and on the relation between
 $z_{m,k}$ and $z^{p}_{m,k}$, to obtain a tighter region.
 \citet{wang2022} encode the two copies with extra dependencies between them, and over-approximate this encoding by network decomposition and a linear-program relaxation, so their bound is sound but not exact.
-\citet{wang2022} also constrain the difference between the clean and
+\dadd{\citet{wang2022} also constrain the difference between the clean and
 the perturbed copy at every neuron, but they relax that difference
 along with the ReLUs, and decide which binaries to keep from each
 neuron's own bounds alone. \tool uses the difference itself, together
 with the other copy's binary, to narrow the interval each triangle is
-drawn over, so its relaxation is much tighter.
+drawn over, so its relaxation is much tighter.}
 
 
 \section{Incremental Verification}

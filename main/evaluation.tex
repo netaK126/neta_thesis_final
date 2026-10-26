@@ -32,8 +32,8 @@ robustness verifier. Like \baseline, \tool solves the mixed-integer
 program with Gurobi~\citep{gurobi} under a three-hour timeout, with
 MIPGap${=}0.01$, MIPFocus${=}3$, Threads${=}32$, Seed${=}4$, and
 Cutoff${=}\delta^{\mathrm{HA}}$, the bound of the hyper-adversarial
-attack. The one exception is the MNIST 3$\times$100 runs with
-$c_s{\in}\{0,4\}$, which ran under a five-hour timeout.
+attack. \dadd{The one exception is the MNIST 3$\times$100 runs with
+$c_s{\in}\{0,4\}$, which ran under a five-hour timeout.}
 For the contrast perturbation, which multiplies two variables,
 we set NonConvex${=}2$. For the conditional-triangle relaxation, we
 set $\tau{=}0.5$. The results of \baseline are obtained by our
@@ -75,7 +75,7 @@ For the rest, we train $\Npre$ with Adam and then fine-tune it with a single ite
     \midrule
     CIFAR-10 & \emph{conv4} & 2 conv (stride 1 and 4) + 2 FC & 8910 & \checkmark \\
     \midrule
-    HAR & 2$\times$500 & 2 FC layers & 500 & \\
+    HAR & \dremove{1}$\dadd{2}\times$500 & \dremove{1}\dadd{2} FC layers & 500 & \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -92,6 +92,7 @@ and the analysis tightness: the difference $\delta_u-\delta_l$ between the upper
 of $\delta_{c_t}$ as a percentage of $\delta_{\max}$, from $0$ (when the bound is exact) to $100$.
 %
 % TODO (Dana): this filter is not applied: in 30 of the 86 rows of the solved tables, all three verifiers finish in under 15 minutes, and these rows are in the averages. Apply the filter or drop the sentence.
+\Dana{Neta, this TODO is still open: the 15-minute filter is not applied. Please either apply it or drop the sentence.}
 
 The following sections plot the time as bars and the tightness as a black line.
 
@@ -101,7 +102,7 @@ show, for each network, perturbation and class pair, the time of the
 three verifiers as bars and the tightness of their analysis as a black
 line, a box per perturbation and group of networks. Figures~\ref{fig:n2-bounddiff-app}--\ref{fig:n2-bounddiff-app-3}
 show the tightness alone, on the hardest instances, where all three
-verifiers reach the timeout and the time no longer
+verifiers reach the \dremove{three-hour} timeout and the time no longer
 separates them. The detailed tables report the individual experiments,
 and they come in two kinds: the timeout tables (Tables~\ref{tab:mnist-timeout}, \ref{tab:fashion-timeout}, \ref{tab:cifar-timeout} and~\ref{tab:har-timeout}), which give the bounds
 $\dlo$ and $\dup$ of each verifier and the ratio of the bound
@@ -114,7 +115,7 @@ test over these per-instance ratios.
 The results show that, on the class pairs where at least one verifier solves, \tool computes its
 bound $7.6\times$ faster than \baseline on average (up to $102.6\times$), and $12.4\times$ faster
 (up to $115.4\times$) with transfer. On the most challenging
-instances, where all three approaches reach the timeout, only the tightness differs.
+instances, where all three approaches reach the \dremove{three-hour} timeout, only the tightness differs.
 There, \tool's bound difference is $19.9\times$ smaller than \baseline's on average,
 and $20.9\times$ smaller with transfer; both reach $261.2\times$ at best.
 The following sections provide additional results and individual experiment results.
@@ -129,7 +130,7 @@ spans all of $[-\varepsilon,\varepsilon]$, so \tool's abstractions barely tighte
 bounds and their overhead can make it slower. Under the contrast perturbation,
 \tool's bound on \emph{conv1} is looser, as its relaxation over-approximates it.%
 % TODO (Dana): Neta, in the current tables no $\ell_\infty$ instance shows \baseline faster or tighter. \baseline is faster mainly on MNIST \emph{conv1} under occlusion and translation (Table~\ref{tab:mnist-solved}). Can you update these two cases?
-
+\Danawarn{Neta, still open: could you update the two cases where \baseline is faster?}
 
 \begin{table}[t]
 \centering
@@ -153,13 +154,13 @@ CIFAR-10 \emph{conv4} ($\tau{=}0.7$) & 50.4\% & 48.2\% & 51.5\% & 51.7\% \\
 CIFAR-10 \emph{conv4} ($\tau{=}0.3$) & 46.6\% & 26.6\% & 49.9\% & 46.7\% \\
 CIFAR-10 \emph{conv4} ($\tau{=}0.2$) & 46.6\% & 26.6\% & 46.6\% & 23.1\% \\
 CIFAR-10 \emph{conv4} ($\tau{=}0.0$) & 0.0\% & $-2.9$\% & 0.0\% & $-2.9$\% \\
-HAR 2$\times$500 & 0.0\% & $-0.0$\% & 0.0\% & $-0.2$\% \\
+HAR \dremove{1}$\dadd{2}\times$500 & 0.0\% & $-0.0$\% & 0.0\% & $-0.2$\% \\
 \bottomrule
 \end{tabular}
 \end{table}
 %
 % TODO (Dana): Neta, \tool's rows at $\tau{=}0.2$ and $\tau{=}0.3$ are identical. Is it because no neuron has a triangle error between $0.2$ and $0.3$? If so, can you say so in the text?
-
+\Danawarn{Neta, still open: the $\tau{=}0.2$ and $\tau{=}0.3$ rows are identical. Could you explain why?}
 
 \input{main/evaluation-results}
 
@@ -171,7 +172,7 @@ tests: speed on the instances where at least one verifier finishes,
 and tightness on the instances where all verifiers reach the timeout,
 each for \tool and for \tool in transfer mode. The results show that \tool, with and without transfer, significantly outperforms \baseline in both tightness and speed, with $p{<}10^{-4}$.%
 % TODO (Dana): Neta, for transfer speed $n{=}87$, but Tables~\ref{tab:mnist-solved}, \ref{tab:fashion-solved} and~\ref{tab:cifar-solved} together have $86$ rows. How is $n$ counted? Also, some rows share the same network and $c_s$, and the \emph{conv4} rows repeat at several $\tau$ values, so they are not independent. Could you run the test on one row per network, perturbation and $c_s$, at $\tau{=}0.5$ only?
-
+\Danawarn{Neta, still open: Wilcoxon $n{=}87$ vs $86$ rows, and the independence concern. Could you address this?}
 
 % BEGIN AUTO: aaai_wilcoxon_table
 \begin{table}[t]
@@ -208,6 +209,7 @@ once. The time is the mean over the twelve experiments, where an
 experiment that reaches the timeout counts as $180$
 minutes.%
 % TODO (Dana): verify both statements.
+\Danawarn{Neta, if you already verified these two statements (one run each, timeout $= 180$ min), just remove this comment.}
 
 Table~\ref{tab:ablation-cifar-cnn5} provides the results. It shows,
 for each variant, the execution time, how many of the twelve
@@ -240,7 +242,7 @@ transfer mode finishes eight of the twelve experiments, at $81.1$
 minutes on average, where \tool finishes one and takes $177$ minutes.
 %
 % TODO (Dana): verify: the four $\tau{=}0.5$ transfer cells of these experiments in Tables~\ref{tab:cifar-timeout} and~\ref{tab:cifar-solved} (115.2, 13.3, 180 and 42.9 minutes) average $87.9$ minutes, not $81.1$. Check that the ablation and the tables come from the same runs.
-
+\Danawarn{Neta, still open: the ablation average ($81.1$) does not match the tables ($87.9$). Could you check?}
 
 \input{main/evaluation-ablation}
 

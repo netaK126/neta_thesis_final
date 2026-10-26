@@ -119,7 +119,7 @@ perturbations of $x$ up to size $\ep$ by
 The minimal globally robust bound $\delta^*$ is the infimum of the $\delta$ for which $N$ is $\delta$-globally robust. It equals its counterpart, the \emph{maximal non-robust bound}.%
 % TODO (Dana): Neta: in VHAGaR, the condition is $\geq$, which is why $\min$/$\max$ were correct. Here it is $>$, which needs $\sup$/$\inf$. I suggest switching to $\geq$ as in VHAGaR. If not, please change to $\sup$/$\inf$.
 % ANSWER (Neta): i double checked and in vahgar it is ">" (according to fig 5). i did change the definition of delta_c_t in " exact Verification" section.
-We define this bound as the maximum of $\hat{\delta}_{c_t}$ over all
+We define this bound as the \Dana{Neta, this says ``maximum'' but $\hat\delta_{c_t}$ below is a $\sup$. Should this be ``supremum'' as well?} maximum of $\hat{\delta}_{c_t}$ over all
 target classes $c_t \neq c$, where
 \begin{equation}
 \begin{aligned}
@@ -163,10 +163,10 @@ $x^{p} \in \mI_\ep(x)$ through constraints, for example in first-order
 logic~\citep{katz2019,katz2017reluplex} or in a mixed-integer
 linear program (MILP)~\citep{tjeng2019}. A solver then computes
 \[
-  \hat{\delta}_{c_t} = \sup\; \delta
+  \hat{\delta}_{c_t} = \dadd{\sup\; \delta}
   \quad \text{subject to} \quad
-  x,\, x^{p} \in \mI_\ep(x),\;
-  \conf{N}{x}{c} \geq \delta,\;
+  \dadd{x,\, x^{p} \in \mI_\ep(x),\;}
+  \dadd{\conf{N}{x}{c} \geq \delta,\;}
   \conf{N}{x^{p}}{c_t} > 0 .
 \]
 

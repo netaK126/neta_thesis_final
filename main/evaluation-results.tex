@@ -105,7 +105,7 @@ and Table~\ref{tab:har-timeout} for HAR.
 
 \input{graphics/fig_bd_c1f_merged}
 
-\caption[Tightness on the hardest instances: HAR, CIFAR-10, MNIST 3$\times$100 and Fashion-MNIST]{Analysis tightness $\delta_u-\delta_l$ on the hardest instances, where all three approaches reach the timeout (five hours on MNIST 3$\times$100 with $c_s{\in}\{0,4\}$, three hours elsewhere), on HAR 2$\times$500, CIFAR-10 \emph{conv4} and MNIST 3$\times$100, and on Fashion-MNIST 3$\times$50 and \emph{conv1}.}
+\caption[Tightness on the hardest instances: HAR, CIFAR-10, MNIST 3$\times$100 and Fashion-MNIST]{Analysis tightness $\delta_u-\delta_l$ on the hardest instances, where all three approaches reach the timeout \dadd{(five hours on MNIST 3$\times$100 with $c_s{\in}\{0,4\}$, three hours elsewhere)}, on HAR \dremove{1}$\dadd{2}\times$500, CIFAR-10 \emph{conv4} and MNIST 3$\times$100, and on Fashion-MNIST 3$\times$50 and \emph{conv1}.}
 \label{fig:n2-bounddiff-app}
 \end{figure}
 
@@ -162,8 +162,8 @@ and Table~\ref{tab:har-timeout} for HAR.
 \label{sec:evaluation-results-mnist}
 
 In this section, we report the individual results on MNIST. Each instance shows the bounds $\delta_l$ and $\delta_u$ as percentages of $\delta_{\max}$ and the execution time in minutes. For instances where all verifiers reach the solver timeout, the last two columns report the $\delta_u{-}\delta_l$ ratio, $\frac{\delta_u^{\baseline}-\delta_l^{\baseline}}{\delta_u-\delta_l}$: above $1$ the verifier is tighter than \baseline.
-Each row averages over the three class targets, $c_t$, for a single source class $c_s$ and perturbation type and size, and the last row averages over all rows.
-The tables also report $\delta_d$, the maximum confidence over the dataset, as a percentage of $\delta_{\max}$. 
+\dadd{Each row averages over the three class targets, $c_t$, for a single source class $c_s$ and perturbation type and size, and the last row averages over all rows.
+The tables also report $\delta_d$, the maximum confidence over the dataset, as a percentage of $\delta_{\max}$.}
 Table~\ref{tab:mnist-timeout} reports the $\delta_u{-}\delta_l$ ratios on instances where all verifiers reach the timeout, and Table~\ref{tab:mnist-solved} reports the speedups on instances where at least one verifier finishes, for architectures 3$\times$50, 3$\times$100, and \emph{conv1}. The results show that \tool achieves the largest improvements under occlusion: the $\delta_u{-}\delta_l$ ratios reach $261.2\times$ under occlusion $(3,3,5)$, in both modes, and the speedups reach $102.6\times$, and $115.4\times$ with transfer, under occlusion $(1,1,5)$.
 
 
@@ -208,11 +208,11 @@ $\delta_d{=}68\%$ & patch (1,14,14,3) & $0.5$ & 40 & 82 & 180 & 45 & 59 & 180 & 
  & translation (1,1) & $0.5$ & 85 & 92 & 180 & 85 & 90 & 180 & 84 & 89 & 180 & 1.4$\times$ & 1.4$\times$ \\
  & rotation (10) & $0.5$ & 76 & 90 & 180 & 76 & 88 & 180 & 76 & 88 & 180 & 1.2$\times$ & 1.2$\times$ \\
 \midrule
-\shortstack[l]{\textbf{3$\times$100 / $N$}\\$c_s{=}0$\\$\delta_{\max}{=}23.6$\\$\delta_d{=}66\%$} & occlusion (3,3,5)$^{\dagger}$ & $0.5$ & 0.42 & 100 & 300 & 3.4 & 5.5 & 300 & 3.4 & 5.5 & 300 & 47.4$\times$ & 47.4$\times$ \\
+\shortstack[l]{\textbf{3$\times$100 / $N$}\\$c_s{=}0$\\$\delta_{\max}{=}23.6$\\$\delta_d{=}66\%$} & occlusion (3,3,5)\dadd{$^{\dagger}$} & $0.5$ & 0.42 & 100 & 300 & 3.4 & 5.5 & 300 & 3.4 & 5.5 & 300 & 47.4$\times$ & 47.4$\times$ \\
 \midrule
 \shortstack[l]{\textbf{3$\times$100 / $N$}\\$c_s{=}1$\\$\delta_{\max}{=}24$\\$\delta_d{=}47\%$} & occlusion (3,3,5) & $0.5$ & 0.64 & 100 & 180 & 2 & 5.5 & 180 & 2 & 5.4 & 180 & 28.4$\times$ & 29.2$\times$ \\
 \midrule
-\shortstack[l]{\textbf{3$\times$100 / $N$}\\$c_s{=}4$\\$\delta_{\max}{=}26.7$\\$\delta_d{=}53\%$} & occlusion (3,3,5)$^{\dagger}$ & $0.5$ & 0.26 & 100 & 300 & 2.8 & 5.6 & 300 & 2.9 & 5.6 & 300 & 35.6$\times$ & 36.9$\times$ \\
+\shortstack[l]{\textbf{3$\times$100 / $N$}\\$c_s{=}4$\\$\delta_{\max}{=}26.7$\\$\delta_d{=}53\%$} & occlusion (3,3,5)\dadd{$^{\dagger}$} & $0.5$ & 0.26 & 100 & 300 & 2.8 & 5.6 & 300 & 2.9 & 5.6 & 300 & 35.6$\times$ & 36.9$\times$ \\
 \midrule
 \textbf{\emph{conv1} / $N$} & $\ell_\infty$ (0.1) & $0.5$ & 66 & 99 & 180 & 69 & 99 & 180 & 70 & 99 & 180 & 1.1$\times$ & 1.1$\times$ \\
 $c_s{=}0$ & brightness (0.25) & $0.5$ & 24 & 93 & 180 & 33 & 94 & 180 & 32 & 94 & 180 & 1.1$\times$ & 1.1$\times$ \\
@@ -228,7 +228,7 @@ $c_s{=}2$ & brightness (0.25) & $0.5$ & 24 & 93 & 180 & 30 & 87 & 180 & 35 & 87 
 \bottomrule
 \end{tabular}%
 \end{adjustbox}
-\caption{Bound-difference ratios for MNIST, on instances where all verifiers reach the timeout, so $t$ is the timeout of each run. $^{\dagger}$: five hours; three hours for all other rows. Both rows are included in the average.}
+\caption{Bound-difference ratios for MNIST, on instances where all verifiers reach the timeout\dadd{, so $t$ is the timeout of each run. $^{\dagger}$: five hours; three hours for all other rows. Both rows are included in the average}.}
 \label{tab:mnist-timeout}
 \end{table}
 % END AUTO: aaai_safe_wide_n2_appendix_tables
@@ -291,7 +291,7 @@ $\delta_d{=}27\%$ & occlusion (5,5,5) & $0.5$ & 14 & 14 & 13.1 & 14 & 14 & 1.5 &
 \bottomrule
 \end{tabular}%
 \end{adjustbox}
-\caption{Speedups for MNIST, on instances where at least one verifier finishes within the 3-hour timeout.}
+\caption{Speedups for MNIST, on instances where at least one verifier finishes within the \dadd{3-hour} timeout.}
 \label{tab:mnist-solved}
 \end{table}
 
@@ -501,7 +501,7 @@ $\delta_d{=}36\%$ & occlusion (14,14,9) & $0.7$ & 9.5 & 98 & 180 & 67 & 67 & 101
 \subsection{HAR}
 \label{sec:evaluation-results-har}
 
-In this section, we report the individual results on HAR. Table~\ref{tab:har-timeout} reports the $\delta_u{-}\delta_l$ ratios on instances where all verifiers reach the timeout, for the 2$\times$500 network under $\ell_\infty$ $(0.01)$. The results show that \tool achieves $\delta_u{-}\delta_l$ ratios of $61.7$--$69.8\times$ without transfer and $48.9$--$82.3\times$ with transfer. \tool relaxes no neuron of this network (Table~\ref{tab:relax-precision}), so these ratios do not come from the relaxation.%
+In this section, we report the individual results on HAR. Table~\ref{tab:har-timeout} reports the $\delta_u{-}\delta_l$ ratios on instances where all verifiers reach the timeout, for the \dremove{1}$\dadd{2}\times$500 network under $\ell_\infty$ $(0.01)$. The results show that \tool achieves $\delta_u{-}\delta_l$ ratios of $61.7$--$69.8\times$ without transfer and $48.9$--$82.3\times$ with transfer. \tool relaxes no neuron of this network (Table~\ref{tab:relax-precision}), so these ratios do not come from the relaxation.%
 
 % BEGIN AUTO: aaai_safe_wide_n2_appendix_tables:har
 % auto-generated: archs=['har'], dataset=har, total_cell_rows=18
@@ -521,15 +521,15 @@ In this section, we report the individual results on HAR. Table~\ref{tab:har-tim
 \toprule
 \aaaisafewideheaderbd
 \midrule
-\shortstack[l]{\textbf{2$\times$500 / $N$}\\$c_s{=}0$\\$\delta_{\max}{=}68.3$\\$\delta_d{=}19\%$} & $\ell_\infty$ (0.01) & $0.5$ & 1.3 & 100 & 180 & 1.3 & 2.9 & 180 & 1.1 & 2.3 & 180 & 61.7$\times$ & 82.3$\times$ \\
+\shortstack[l]{\textbf{\dremove{1}\dadd{2}$\times$500 / $N$}\\$c_s{=}0$\\$\delta_{\max}{=}68.3$\\$\delta_d{=}19\%$} & $\ell_\infty$ (0.01) & $0.5$ & 1.3 & 100 & 180 & 1.3 & 2.9 & 180 & 1.1 & 2.3 & 180 & 61.7$\times$ & 82.3$\times$ \\
 \midrule
-\shortstack[l]{\textbf{2$\times$500 / $N$}\\$c_s{=}1$\\$\delta_{\max}{=}57.4$\\$\delta_d{=}21\%$} & $\ell_\infty$ (0.01) & $0.5$ & 1.3 & 99 & 180 & 1.3 & 2.7 & 180 & 1.1 & 3.1 & 180 & 69.8$\times$ & 48.9$\times$ \\
+\shortstack[l]{\textbf{\dremove{1}\dadd{2}$\times$500 / $N$}\\$c_s{=}1$\\$\delta_{\max}{=}57.4$\\$\delta_d{=}21\%$} & $\ell_\infty$ (0.01) & $0.5$ & 1.3 & 99 & 180 & 1.3 & 2.7 & 180 & 1.1 & 3.1 & 180 & 69.8$\times$ & 48.9$\times$ \\
 \midrule
 \multicolumn{12}{r|}{\textbf{average}} & 65.8$\times$ & 65.6$\times$ \\
 \bottomrule
 \end{tabular}%
 \end{adjustbox}
-\caption{Bound-difference ratios for 2$\times$500 (HAR), on instances where all verifiers reach the 3-hour timeout.}
+\caption{Bound-difference ratios for \dremove{1}$\dadd{2}\times$500 (HAR), on instances where all verifiers reach the 3-hour timeout.}
 \label{tab:har-timeout}
 \end{table}
 

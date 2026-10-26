@@ -10,6 +10,18 @@
 % --------------------------- general --------------------------------
 \usepackage{xspace}
 \usepackage{xcolor}
+\usepackage{soul}
+\usepackage{ulem}
+\normalem
+
+% ---- review markup (Dana's review of Neta's changes) ----
+\definecolor{reviewblue}{HTML}{1565C0}
+\definecolor{reviewpink}{HTML}{C62828}
+\newcommand{\dremove}[1]{{\color{reviewblue}\sout{#1}}}
+\newcommand{\dadd}[1]{{\color{reviewpink}#1}}
+\newcommand{\Dana}[1]{\par\noindent{\color{reviewpink}\textbf{Dana:} #1}\par}
+\definecolor{revieworange}{HTML}{E65100}
+\newcommand{\Danawarn}[1]{\par\noindent{\color{revieworange}\textbf{Dana (open):} #1}\par}
 % pinned to the 2024-06-01 release. array 2.7 dropped
 % \UseMathForPositioningText, which bidi's right-to-left patch for
 % tabular still calls, so with the current release every table in the

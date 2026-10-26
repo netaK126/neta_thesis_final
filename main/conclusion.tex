@@ -32,7 +32,8 @@ network with 500 neurons in one hidden layer, on which the bounds of
 \section{Small Perturbations}
 \label{sec:future-small-perturbations}
 
-A small perturbation is not necessarily an easy one. Once a perturbation
+\Dana{Neta, the second sentence does not follow from the first. Could you open with something like: ``The first direction focuses on small perturbations, such as a brightness shift of $\ep{=}0.01$. While this might seem simpler, it is not, since \tool's per-neuron bounds are taken over the whole input domain and do not tighten with~$\ep$. As a future direction, one can\ldots''?}
+\dadd{A small perturbation is not necessarily an easy one. Once a perturbation
 of any type is small enough, the two copies nearly coincide. \tool
 profits from this far less than it might: its per-neuron bounds are
 taken over the whole input domain, so the number of unstable neurons,
@@ -46,12 +47,13 @@ interval. The program then carries binary variables for one copy rather
 than two. The condition this leaves is necessary for
 $\conf{N}{x^{p}}{c_t}>0$ but not sufficient, so it over-approximates the
 feasible pairs. The upper bound $\dup$ therefore remains sound, and how
-much precision this costs for a small $\ep$ is left for future research.
+much precision this costs for a small $\ep$ is left for future research.}
+\Dana{Neta, the rewrite is much shorter, which is what I asked for. But you dropped the formal derivation entirely: the logit-difference inequality~(7.1)--(7.2) and the one-copy condition~(7.3) were a concrete contribution. Could you keep one displayed equation showing the one-copy condition, in two or three lines?}
 
 \section{Verifying New Perturbations in Global Robustness Settings}
 \label{sec:future-perturbations}
 
-\tool, and the verifiers we compare it to, support only a handful of
+\dadd{\tool, and the verifiers we compare it to, support only a handful of
 perturbations. Perturbations that constrain all coordinates jointly,
 rather than one at a time, are yet to be explored in these settings:
 $\ell_0$, $\ell_1$ and $\ell_2$. Each of them imposes a single budget
@@ -70,28 +72,29 @@ robustness setting~\citep{shapira2023calzone, croce2020lp,
 cohen2019smoothing}. However, it is yet to be explored how to adapt such
 approaches to a setting with two copies and an unknown input, or whether
 new approaches are needed altogether. We therefore propose to pursue
-this direction in future work.
+this direction in future work.}
+\Dana{Neta, this is a good rewrite: the three norms share a common paragraph instead of repeating the same idea three times. But the old version had concrete first-layer bounds for each norm ($\ell_0$: top-$t$ weights; $\ell_1$: H\"older; $\ell_2$: Cauchy--Schwarz) and the $\ell_0$ encoding cost argument. Could you keep one sentence per norm showing the first-layer bound?}
 
 \section{Training Networks for Verifiability}
 \label{sec:future-training}
 
-Every direction above takes the network as given. The cost of the
+\dadd{Every direction above takes the network as given. The cost of the
 analysis, however, is set by the network. It is exponential in the
 number of unstable neurons, which is fixed by bounds taken over the
 whole input domain, regardless of the perturbation. If a network can be
 trained so that few of its neurons are unstable, the complexity of the
-analysis falls, and with it the verification time. Training for
-verifiability is being studied for local robustness, by regularizing
+analysis falls, and with it the verification time.} Training for
+verifiability is being studied for local robustness, \dadd{by regularizing}
 pre-activation bounds that straddle zero~\citep{xiao2019relustability}
-and by replacing unstable neurons with retrained linear
-functions~\citep{chen2022grafting}. In the global setting, GloRo
+and \dadd{by} replacing unstable neurons with \dadd{retrained} linear
+functions~\citep{chen2022grafting}. \dadd{In the global setting, GloRo
 nets~\citep{leino2021gloro} train for a Lipschitz-based notion of
 robustness with built-in certification. Training for the global
 robustness that \tool verifies is yet to be studied. \tool, moreover,
 asks for less than stability. It needs only the normalized triangle area
 to be small, which is continuous where the sign is not, and is what the
-relaxation actually tests. Full stability over the whole domain would
+relaxation actually tests.} Full stability over the whole domain would
 leave an affine map, so the target is a frontier rather than a goal: how
-many neurons can be decided, or how small their areas made, before the
+many neurons can be decided, \dadd{or how small their areas made,} before the
 accuracy goes.
 
