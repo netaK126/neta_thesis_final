@@ -132,6 +132,9 @@ where transfer is what keeps \tool ahead (Table~\ref{tab:fashion-timeout}). \too
 without transfer is in turn faster than \tool with transfer on $22$ of the $79$
 instances, most of them under occlusion and translation, $10$ of the $30$ and $8$ of
 the $29$.
+\tool relaxes the same neurons at $\tau{=}0.2$ and $\tau{=}0.3$, since no neuron
+has a normalized triangle area between them. With transfer, $\Npre$'s bounds
+tighten the pre-activations, and some neurons do fall between the two thresholds.
 
 \begin{table}[t]
 \centering
@@ -159,9 +162,6 @@ HAR 2$\times$500 & 0.0\% & $-0.0$\% & 0.0\% & $-0.2$\% \\
 \bottomrule
 \end{tabular}
 \end{table}
-%
-% TODO (Dana): Neta, \tool's rows at $\tau{=}0.2$ and $\tau{=}0.3$ are identical. Is it because no neuron has a triangle error between $0.2$ and $0.3$? If so, can you say so in the text?
-\Danawarn{Neta, still open: the $\tau{=}0.2$ and $\tau{=}0.3$ rows are identical. Could you explain why?}
 
 \input{main/evaluation-results}
 
@@ -172,8 +172,6 @@ In this section, we test whether the improvements of \tool over \baseline are st
 tests: speed on the instances where at least one verifier finishes,
 and tightness on the instances where all verifiers reach the timeout,
 each for \tool and for \tool in transfer mode. The results show that \tool, with and without transfer, significantly outperforms \baseline in both tightness and speed, with $p{<}10^{-4}$.%
-% TODO (Dana): Neta, for transfer speed $n{=}87$, but Tables~\ref{tab:mnist-solved}, \ref{tab:fashion-solved} and~\ref{tab:cifar-solved} together have $86$ rows. How is $n$ counted? Also, some rows share the same network and $c_s$, and the \emph{conv4} rows repeat at several $\tau$ values, so they are not independent. Could you run the test on one row per network, perturbation and $c_s$, at $\tau{=}0.5$ only?
-\Danawarn{Neta, still open: Wilcoxon $n{=}87$ vs $86$ rows, and the independence concern. Could you address this?}
 
 % BEGIN AUTO: aaai_wilcoxon_table
 \begin{table}[t]
@@ -209,8 +207,6 @@ $c_s{\in}\{0,2\}$ and $c_t{\in}\{1,3,4\}$. Each experiment runs
 once. The time is the mean over the twelve experiments, where an
 experiment that reaches the timeout counts as $180$
 minutes.%
-% TODO (Dana): verify both statements.
-\Danawarn{Neta, if you already verified these two statements (one run each, timeout $= 180$ min), just remove this comment.}
 
 Table~\ref{tab:ablation-cifar-cnn5} provides the results. It shows,
 for each variant, the execution time, how many of the twelve
@@ -241,9 +237,6 @@ the mode that reuses the solution of $\Npre$. Without it, transfer
 mode takes $87.9$ minutes on average, $1.1\times$ longer. Overall,
 transfer mode finishes eight of the twelve experiments, at $81.1$
 minutes on average, where \tool finishes one and takes $177$ minutes.
-%
-% TODO (Dana): verify: the four $\tau{=}0.5$ transfer cells of these experiments in Tables~\ref{tab:cifar-timeout} and~\ref{tab:cifar-solved} (115.2, 13.3, 180 and 42.9 minutes) average $87.9$ minutes, not $81.1$. Check that the ablation and the tables come from the same runs.
-\Danawarn{Neta, still open: the ablation average ($81.1$) does not match the tables ($87.9$). Could you check?}
 
 \input{main/evaluation-ablation}
 

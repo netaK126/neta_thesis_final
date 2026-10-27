@@ -875,6 +875,15 @@
   \setlength{\parskip}{10pt}
 
   \iitthesis@abstractHebrew
+  % Close the page INSIDE the hebrew group. Without this, an abstract
+  % that runs to more than one page splits babel's language-switch
+  % \bgroup/\egroup pair across the page break, and the .aux is then
+  % written with a stray \egroup before its \bgroup, so the NEXT run
+  % dies reading it with "Extra }, or forgotten \endgroup". Note this
+  % is not the \clearpage warned about below the \makeabstractHebrew
+  % call: that one sits outside the group and does suppress the
+  % auto-generated list of figures, whereas this one does not.
+  \clearpage
 
   \end{hebrew}
 }
