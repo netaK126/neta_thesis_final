@@ -51,10 +51,10 @@ interval, bounding how far the perturbation shifts the neuron from its clean val
 bound, tightening the neuron's range. In transfer mode, it further tightens each copy's bound by
 intersecting it with $\Npre$'s verified bounds shifted by a difference zonotope. It then encodes each
 neuron according to its bound
-$[l_{m,k},u_{m,k}]$, and similarly $[l^{p}_{m,k},u^{p}_{m,k}]$: if the bound decides the ReLU, that is
-$z_{m,k}=\hat z_{m,k}$ or $z_{m,k}=0$, it adds a linear constraint; if the bound is near-stable, it adds
-a triangle or conditional-triangle relaxation; otherwise it adds a binary variable and the constraints defined by
-\citet{tjeng2019}. Additionally, it adds the perturbation-difference interval and the zonotope bounds
+$[l_{m,k},u_{m,k}]$, and similarly $[l^{p}_{m,k},u^{p}_{m,k}]$. If the bound decides the ReLU, that is
+$z_{m,k}=\hat z_{m,k}$ or $z_{m,k}=0$, it adds a linear constraint. If the bound is near-stable, it adds
+a triangle or conditional-triangle relaxation. Otherwise, it adds a binary variable and the constraints
+defined by \citet{tjeng2019}. Additionally, it adds the perturbation-difference interval and the zonotope bounds
 to $\varphi$ to prune its search space. In parallel, \tool runs a PGD hyper-attack, as in \baseline~\cite{kabaha2024vhagar}, that yields a
 feasible solution, whose objective lower-bounds $\hat\delta_{c_t}$, which is added to $\varphi$ to prune
 the search space. The attack also yields per-neuron phase hints that warm-start the solver, guiding the initial setting of
@@ -141,17 +141,17 @@ The definition is recursive: at the input, $x^{p}_k-x_k$ is set by
 the perturbation: for a \emph{pixel-wise} perturbation (i.e., $\ell_\infty$, brightness, contrast, occlusion, or
 patch), the difference
 of each pixel follows directly from $P$, e.g., $[-\ep,\ep]$ under an $\ell_\infty$ perturbation of size $\ep$, or $[-x_k,1-x_k]$
-for a patch pixel that may take any value in $[0,1]$; for a
+for a patch pixel that may take any value in $[0,1]$. For a
 \emph{geometric} perturbation $x^{p}=Tx$ with a fixed transformation $T$, such as a translation or rotation, it is the linear map
 $(T-I)x$, which \tool folds into the first layer as $W_1(T-I)$ and evaluates exactly over $x\in[0,1]$,
 giving the first-layer difference without error. At layer $m>0$, the interval
 $[\Delta^{\hat z,\downarrow}_{m,k},\Delta^{\hat z,\uparrow}_{m,k}]$ after the affine computation
 $\hat z_{m,k}$ is obtained from the previous layer's intervals by interval arithmetic, and the interval
 after the ReLU, $[\Delta^{z,\downarrow}_{m,k},\Delta^{z,\uparrow}_{m,k}]$, depends on the neuron's
-stability: it is $[\Delta^{\hat z,\downarrow}_{m,k},\Delta^{\hat z,\uparrow}_{m,k}]$ if both copies are
-stable with $l_{m,k}\ge 0$ and $l^{p}_{m,k}\ge 0$, so that each ReLU is the identity;
-$[0,0]$ if both are stable with $u_{m,k}\le 0$ and $u^{p}_{m,k}\le 0$, so that each ReLU is zero; and
-$[\min(0,\Delta^{\hat z,\downarrow}_{m,k}),\max(0,\Delta^{\hat z,\uparrow}_{m,k})]$ otherwise.
+stability. It is $[\Delta^{\hat z,\downarrow}_{m,k},\Delta^{\hat z,\uparrow}_{m,k}]$ if both copies are
+stable with $l_{m,k}\ge 0$ and $l^{p}_{m,k}\ge 0$, so that each ReLU is the identity. It is
+$[0,0]$ if both are stable with $u_{m,k}\le 0$ and $u^{p}_{m,k}\le 0$, so that each ReLU is zero. Otherwise,
+it is $[\min(0,\Delta^{\hat z,\downarrow}_{m,k}),\max(0,\Delta^{\hat z,\uparrow}_{m,k})]$.
 
 
 \section{Zonotope Bound Tightening}
@@ -231,8 +231,8 @@ The conditioning may leave a branch's interval stable, and there the triangle is
 sound: its upper edge passes through $(l,0)$, which falls below $\relu(l)$ when
 $l\ge 0$. We therefore substitute, for that branch, the tightest linear bound on $\relu$
 over its interval. If $l_A\ge 0$, the ReLU is the identity on $[l_A,u_A]$ and the active
-constraint becomes $z_{m,k}\le \hat z_{m,k}+M_{m,k}(1-a^{p}_{m,k})$; if $u_A\le 0$, the
-ReLU is zero there and it becomes $z_{m,k}\le M_{m,k}(1-a^{p}_{m,k})$; and if $[l_A,u_A]$
+constraint becomes $z_{m,k}\le \hat z_{m,k}+M_{m,k}(1-a^{p}_{m,k})$. If $u_A\le 0$, the
+ReLU is zero there and it becomes $z_{m,k}\le M_{m,k}(1-a^{p}_{m,k})$. If $[l_A,u_A]$
 is empty, the branch is infeasible. The inactive constraint is substituted in the same way
 from $[l_I,u_I]$, independently of the active one.
 
@@ -407,6 +407,6 @@ agree, or when the hyper-attack has not set the hint.
 \baseline~\cite{kabaha2024vhagar}. First, $\varphi_{\mathrm{in}}$ encodes the input relation
 $x^{p}=P(x,e)$ with $e\le\ep$ and $x,x^{p}\in[0,1]^n$. Second, \tool runs the dependency analysis to
 form $\varphi_{\mathrm{dep}}$: for neurons whose activation is monotone under the
-perturbation, it adds $z^{p}_{m,k}\bowtie z_{m,k}$ with $\bowtie\in\{\ge,\le,=\}$. Third, from the aforementioned hyper-attack, \tool
+perturbation, it adds $z^{p}_{m,k}\bowtie z_{m,k}$ with $\bowtie\in\{\ge,\le,=\}$. Third, from the hyper-attack, \tool
 adds the lower bound ${\hat{\delta}}_{c_t}\ge\delta^{\mathrm{HA}}$.%
 

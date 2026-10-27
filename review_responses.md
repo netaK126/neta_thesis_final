@@ -110,14 +110,17 @@ The Hebrew abstract is about 290 words. Extend to at least 1,000 words.
 ### 17. evaluation.tex:220 — "relaxation have" → "relaxation has"
 
 **Response:**
+DONE
 
 ### 18. evaluation.tex:224 — "experiemnts" → "experiments"
 
 **Response:**
+DONE
 
 ### 19. evaluation.tex:225 — "relexations" → "relaxations"
 
 **Response:**
+DONE
 
 ### 20. evaluation.tex:227 — "experiemnt" → "experiment"
 

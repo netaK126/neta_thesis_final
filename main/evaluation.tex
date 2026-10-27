@@ -102,10 +102,10 @@ taking over 15 minutes. Figures~\ref{fig:n2-bounddiff-app}--\ref{fig:n2-bounddif
 show the tightness alone, on the hardest instances, where all three
 verifiers reach the timeout and the time no longer
 separates them. The detailed tables report the individual experiments,
-and they come in two kinds: the timeout tables (Tables~\ref{tab:mnist-timeout}, \ref{tab:fashion-timeout}, \ref{tab:cifar-timeout} and~\ref{tab:har-timeout}), which give the bounds
+and they come in two kinds. The timeout tables (Tables~\ref{tab:mnist-timeout}, \ref{tab:fashion-timeout}, \ref{tab:cifar-timeout} and~\ref{tab:har-timeout}) give the bounds
 $\dlo$ and $\dup$ of each verifier and the ratio of the bound
 difference of \baseline to the one of \tool, where a ratio above $1$
-means \tool is tighter; and the solved tables (Tables~\ref{tab:mnist-solved}, \ref{tab:fashion-solved} and~\ref{tab:cifar-solved}), which give the
+means \tool is tighter. The solved tables (Tables~\ref{tab:mnist-solved}, \ref{tab:fashion-solved} and~\ref{tab:cifar-solved}) give the
 execution times and the speedups on the instances where at least one
 verifier finishes. Table~\ref{tab:wilcoxon} reports the Wilcoxon signed-rank
 test over these per-instance ratios.
@@ -115,7 +115,7 @@ bound $7.6\times$ faster than \baseline on average (up to $102.6\times$), and $1
 (up to $115.4\times$) with transfer. On the most challenging
 instances, where all three approaches reach the timeout, only the tightness differs.
 There, \tool's bound difference is $19.9\times$ smaller than \baseline's on average,
-and $20.9\times$ smaller with transfer; both reach $261.2\times$ at best.
+and $20.9\times$ smaller with transfer. Both reach $261.2\times$ at best.
 The following sections provide additional results and individual experiment results.
 To understand \tool's advantage over \baseline, Table~\ref{tab:relax-precision}
 reports how many neurons are relaxed with the conditional triangle, as a percentage of
@@ -214,14 +214,14 @@ experiments finish before the three-hour timeout, and the percentage
 of relaxed neurons, which indicates what each component leaves for the
 relaxation to work with.
 
-The results show that the relaxation have the biggest impact on whether
+The results show that the relaxation has the biggest impact on whether
 the analysis terminates or not. Without the relaxation ($\tau{=}0$),
 none of the twelve experiments finishes, in both modes.
 Without the zonotope, no neuron has bounds tight enough to be relaxed,
-which indicates how much the zonotope tightens them. These experiemnts
-highlight the significance of the relexations for the verification process,
+which indicates how much the zonotope tightens them. These experiments
+highlight the significance of the relaxations for the verification process,
 especially on large networks as \emph{conv4}.
-Under transfer, the zonotope results show an experiemnt where we removed the
+Under transfer, the zonotope results show an experiment where we removed the
 zonotope between $\Npre$ to $N$ to evaluate its contribution.
 There, $48.3\%$ of the neurons are still relaxed,
 and still no experiment finishes.
