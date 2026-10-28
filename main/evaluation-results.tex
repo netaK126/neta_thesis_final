@@ -228,7 +228,7 @@ $c_s{=}2$ & brightness (0.25) & $0.5$ & 24 & 93 & 180 & 30 & 87 & 180 & 35 & 87 
 \bottomrule
 \end{tabular}%
 \end{adjustbox}
-\caption{Bound-difference ratios for MNIST, on instances where all verifiers reach the timeout, so $t$ is the timeout of each run. $^{\dagger}$: five hours, against three hours for all other rows. Both rows are included in the average.}
+\caption{Bound-difference ratios for MNIST, on instances where all verifiers reach the timeout, so $t$ is the timeout of each run. $^{\dagger}$: five hours\dremove{;}\dadd{, against} three hours for all other rows. Both rows are included in the average.}
 \label{tab:mnist-timeout}
 \end{table}
 % END AUTO: aaai_safe_wide_n2_appendix_tables
@@ -469,20 +469,20 @@ $\delta_d{=}36\%$ & occlusion (14,14,9) & $0.0$ & 9.5 & 98 & 180 & 6.7 & 92 & 18
 \aaaisafewideheader
 \midrule
 \textbf{\emph{conv4} / $N$} & patch (1,14,14,3) & $0.7$ & 1.2 & 39 & 180 & 36 & 39 & 77.4 & 42 & 42 & 9.9 & 2.3$\times$ & 18.2$\times$ \\
-$c_s{=}0$ & patch (1,14,14,3) & $0.5$ & 1.2 & 39 & 180 & 24 & 37 & 180 & 37 & 39 & 106 & 1$\times$ & 1.7$\times$ \\
+$c_s{=}0$ & patch (1,14,14,3) & $0.5$ & 1.2 & 39 & 180 & 24 & 37 & 180 & 37 & \dremove{37}\dadd{39} & \dremove{115.2}\dadd{106} & 1$\times$ & \dremove{1.6}\dadd{1.7}$\times$ \\
 $\delta_{\max}{=}1.7$ & patch (1,14,14,3) & $0.3$ & 1.2 & 39 & 180 & 16 & 41 & 180 & 33 & 35 & 128.2 & 1$\times$ & 1.4$\times$ \\
 $\delta_d{=}41\%$ & occlusion (14,14,9) & $0.7$ & 5.1 & 100 & 180 & 48 & 53 & 133.3 & 56 & 57 & 9.6 & 1.4$\times$ & 18.8$\times$ \\
  & translation (1,1) & $0.5$ & 35 & 100 & 180 & 64 & 67 & 180 & 85 & 86 & 47.8 & 1$\times$ & 3.8$\times$ \\
 \midrule
 \textbf{\emph{conv4} / $N$} & patch (1,14,14,3) & $0.7$ & 6.8 & 91 & 180 & 58 & 59 & 29.2 & 62 & 63 & 2.5 & 6.2$\times$ & 72$\times$ \\
-$c_s{=}2$ & patch (1,14,14,3) & $0.5$ & 6.8 & 91 & 180 & 33 & 36 & 166.5 & 60 & 60 & 11 & 1.1$\times$ & 16.4$\times$ \\
+$c_s{=}2$ & patch (1,14,14,3) & $0.5$ & 6.8 & 91 & 180 & 33 & 36 & 166.5 & 60 & 60 & \dremove{13.3}\dadd{11} & 1.1$\times$ & \dremove{13.5}\dadd{16.4}$\times$ \\
 $\delta_{\max}{=}0.3$ & patch (1,14,14,3) & $0.3$ & 6.8 & 91 & 180 & 35 & 54 & 180 & 57 & 60 & 91.9 & 1$\times$ & 2$\times$ \\
 $\delta_d{=}36\%$ & occlusion (14,14,9) & $0.7$ & 9.5 & 98 & 180 & 67 & 67 & 101.6 & 71 & 72 & 2.9 & 1.8$\times$ & 62.1$\times$ \\
- & occlusion (14,14,9) & $0.5$ & 9.5 & 98 & 180 & 60 & 67 & 180 & 69 & 69 & 27.5 & 1$\times$ & 6.5$\times$ \\
+ & occlusion (14,14,9) & $0.5$ & 9.5 & 98 & 180 & 60 & 67 & 180 & \dremove{68}\dadd{69} & 69 & \dremove{42.9}\dadd{27.5} & 1$\times$ & \dremove{4.2}\dadd{6.5}$\times$ \\
  & occlusion (14,14,9) & $0.3$ & 9.5 & 98 & 180 & 47 & 69 & 180 & 66 & 68 & 176.4 & 1$\times$ & 1$\times$ \\
  & translation (1,1) & $0.5$ & 51 & 100 & 180 & 76 & 77 & 84.9 & 82 & 83 & 10.4 & 2.1$\times$ & 17.3$\times$ \\
 \midrule
-\multicolumn{12}{r|}{\textbf{average}} & 1.7$\times$ & 18.4$\times$ \\
+\multicolumn{12}{r|}{\textbf{average}} & 1.7$\times$ & \dremove{18}\dadd{18.4}$\times$ \\
 \bottomrule
 \end{tabular}%
 \end{adjustbox}

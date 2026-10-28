@@ -52,7 +52,7 @@ bound, tightening the neuron's range. In transfer mode, it further tightens each
 intersecting it with $\Npre$'s verified bounds shifted by a difference zonotope. It then encodes each
 neuron according to its bound
 $[l_{m,k},u_{m,k}]$, and similarly $[l^{p}_{m,k},u^{p}_{m,k}]$. If the bound decides the ReLU, that is
-$z_{m,k}=\hat z_{m,k}$ or $z_{m,k}=0$, it adds a linear constraint. If the bound is near-stable, it adds
+$z_{m,k}=\hat z_{m,k}$ or $z_{m,k}=0$, it adds a linear constraint. If the bound is \dadd{near-stable}\dremove{near-decided}, it adds
 a triangle or conditional-triangle relaxation. Otherwise, it adds a binary variable and the constraints
 defined by \citet{tjeng2019}. Additionally, it adds the perturbation-difference interval and the zonotope bounds
 to $\varphi$ to prune its search space. In parallel, \tool runs a PGD hyper-attack, as in \baseline~\cite{kabaha2024vhagar}, that yields a
@@ -175,10 +175,10 @@ per-neuron interval-arithmetic bound to obtain the tighter $[l_{m,k},u_{m,k}]$. 
 zonotope from the first fully connected layer onward, bounding the convolutional layers with interval
 arithmetic. For transfer, \tool builds
 another zonotope whose interval $[d^{\downarrow}_{m,k},d^{\uparrow}_{m,k}]$ bounds how far $N$'s
-pre-activations are from $\Npre$'s (the clean copy via $\hat z_{m,k}-\hat z^{\mathrm{pre}}_{m,k}$, the perturbed
-via $\hat z^{p}_{m,k}-\hat z^{\mathrm{pre},p}_{m,k}$).%
+pre-activations are from $\Npre$'s (the clean copy via \dremove{$z_{m,k}-z^{\mathrm{pre}}_{m,k}$}\dadd{$\hat z_{m,k}-\hat z^{\mathrm{pre}}_{m,k}$}, the perturbed
+via \dremove{$z^{p}_{m,k}-z^{\mathrm{pre},p}_{m,k}$}\dadd{$\hat z^{p}_{m,k}-\hat z^{\mathrm{pre},p}_{m,k}$}).%
  It then tightens both bounds, $[l_{m,k},u_{m,k}]$ and $[l^{p}_{m,k},u^{p}_{m,k}]$, by intersecting each
-with $\Npre$'s verified bounds of the matching copy, shifted by the difference, e.g., for $\hat z_{m,k}$
+with $\Npre$'s verified bounds of the matching copy, shifted by the difference, e.g., \dadd{for $\hat z_{m,k}$}
 \begin{equation}
  [l_{m,k},u_{m,k}]\cap([l^{\mathrm{pre}}_{m,k},u^{\mathrm{pre}}_{m,k}]+[d^{\downarrow}_{m,k},d^{\uparrow}_{m,k}])
  \label{eq:transfer-intersection}
@@ -189,7 +189,7 @@ with $\Npre$'s verified bounds of the matching copy, shifted by the difference, 
 \label{sec:blend-condtri}
 
 We next formalize the conditional-triangle relaxation.
-\tool replaces the exact, binary encoding of a near-stable ReLU with a triangle tied to the other copy.
+\tool replaces the exact, binary encoding of a \dadd{near-stable}\dremove{near-decided} ReLU with a triangle tied to the other copy.
 It does so when the triangle area, normalized by the pre-activation range,
 $\tfrac{u\,\lvert l\rvert}{2(u-l)}$, is at most a hyperparameter $\tau$. The normalization lets a single
 $\tau$ apply to all neurons, which have different interval widths. Either $z_{m,k}$ or $z^{p}_{m,k}$ may be replaced.
@@ -227,7 +227,7 @@ constructs the MIP), our new conditional encoding captures both branches simulta
 where $M_{m,k}=u_{m,k}+\lvert l_{m,k}\rvert$. Intuitively, the middle constraint sets the
 triangle when $a^{p}_{m,k}=1$, and the bottom constraint sets it otherwise.
 
-The conditioning may leave a branch's interval stable, and there the triangle is not
+The conditioning may leave a branch's interval \dadd{stable}\dremove{decided}, and there the triangle is not
 sound: its upper edge passes through $(l,0)$, which falls below $\relu(l)$ when
 $l\ge 0$. We therefore substitute, for that branch, the tightest linear bound on $\relu$
 over its interval. If $l_A\ge 0$, the ReLU is the identity on $[l_A,u_A]$ and the active
@@ -407,6 +407,6 @@ agree, or when the hyper-attack has not set the hint.
 \baseline~\cite{kabaha2024vhagar}. First, $\varphi_{\mathrm{in}}$ encodes the input relation
 $x^{p}=P(x,e)$ with $e\le\ep$ and $x,x^{p}\in[0,1]^n$. Second, \tool runs the dependency analysis to
 form $\varphi_{\mathrm{dep}}$: for neurons whose activation is monotone under the
-perturbation, it adds $z^{p}_{m,k}\bowtie z_{m,k}$ with $\bowtie\in\{\ge,\le,=\}$. Third, from the hyper-attack, \tool
-adds the lower bound ${\hat{\delta}}_{c_t}\ge\delta^{\mathrm{HA}}$.%
+perturbation, it adds $z^{p}_{m,k}\bowtie z_{m,k}$ with $\bowtie\in\{\ge,\le,=\}$. Third, from the \dremove{aforementioned }hyper-attack, \tool
+adds the lower bound \dremove{$\delta_{c_t}\ge\delta^{\mathrm{HA}}$}\dadd{${\hat{\delta}}_{c_t}\ge\delta^{\mathrm{HA}}$}.%
 
