@@ -97,8 +97,8 @@ We report the comparison in four forms, which differ in what they
 measure and in which instances they cover. Figures~\ref{fig:n2-time-app} and~\ref{fig:n2-time-app-2}
 show, for each network, perturbation and class pair, the time of the
 three verifiers as bars and the tightness of their analysis as a black
-line, a box per perturbation and group of networks. \dadd{They cover only the instances
-taking over 15 minutes.} Figures~\ref{fig:n2-bounddiff-app}--\ref{fig:n2-bounddiff-app-3}
+line, a box per perturbation and group of networks. They cover only the instances
+taking over 15 minutes. Figures~\ref{fig:n2-bounddiff-app}--\ref{fig:n2-bounddiff-app-3}
 show the tightness alone, on the hardest instances, where all three
 verifiers reach the timeout and the time no longer
 separates them. The detailed tables report the individual experiments,
@@ -111,7 +111,7 @@ verifier finishes. Table~\ref{tab:wilcoxon} reports the Wilcoxon signed-rank
 test over these per-instance ratios.
 
 The results show that, on the class pairs where at least one verifier solves, \tool computes its
-bound $7.6\times$ faster than \baseline on average (up to $102.6\times$), and \dremove{$12.4\times$}\dadd{$12.5\times$} faster
+bound $7.6\times$ faster than \baseline on average (up to $102.6\times$), and $12.5\times$ faster
 (up to $115.4\times$) with transfer. On the most challenging
 instances, where all three approaches reach the timeout, only the tightness differs.
 There, \tool's bound difference is $19.9\times$ smaller than \baseline's on average,
@@ -123,11 +123,7 @@ the neurons in both network copies,
 and the precision loss, i.e., how much \tool's lower bound $\delta_l$ is higher than \baseline's,
 as a percentage of $\delta_{\max}$. The results show that \tool relaxes many neurons,
 which speeds up the search at a small precision loss.
-\dremove{\baseline is better in two cases. Under $\ell_\infty$, the per-pixel difference
-spans all of $[-\varepsilon,\varepsilon]$, so \tool's abstractions barely tighten the
-bounds and their overhead can make it slower. Under the contrast perturbation,
-\tool's bound on \emph{conv1} is looser, as its relaxation over-approximates it.}
-\dadd{\baseline is better in two minor cases, both on MNIST. Under translation $(1,3)$ on
+\baseline is better in two minor cases, both on MNIST. Under translation $(1,3)$ on
 \emph{conv1} it is faster by $2.3$ minutes (Table~\ref{tab:mnist-solved}), and under
 brightness on 3$\times$50 its $\delta_u{-}\delta_l$ is $0.9\times$ the one of \tool
 (Table~\ref{tab:mnist-timeout}). These are the largest gaps in its favor. It is also
@@ -135,10 +131,10 @@ tighter than \tool without transfer under contrast on Fashion-MNIST 3$\times$50,
 where transfer is what keeps \tool ahead (Table~\ref{tab:fashion-timeout}). \tool
 without transfer is in turn faster than \tool with transfer on $22$ of the $79$
 instances, most of them under occlusion and translation, $10$ of the $30$ and $8$ of
-the $29$.}
-\dadd{\tool relaxes the same neurons at $\tau{=}0.2$ and $\tau{=}0.3$, since no neuron
+the $29$.
+\tool relaxes the same neurons at $\tau{=}0.2$ and $\tau{=}0.3$, since no neuron
 has a normalized triangle area between them. With transfer, $\Npre$'s bounds
-tighten the pre-activations, and some neurons do fall between the two thresholds.}
+tighten the pre-activations, and some neurons do fall between the two thresholds.
 
 \begin{table}[t]
 \centering
@@ -186,10 +182,10 @@ each for \tool and for \tool in transfer mode. The results show that \tool, with
 \toprule
 metric & verifier & $n$ & $W^{+}$ & $W^{-}$ & $z$ & $p$ \\
 \midrule
-tightness & \tool          & \dadd{37} & \dadd{682} & \dadd{21} & \dadd{5.00} & \dadd{$5.9\cdot 10^{-7}$} \\
-tightness & \tool transfer & \dadd{32} & \dadd{520} & \dadd{8} & \dadd{4.79} & \dadd{$1.6\cdot 10^{-6}$} \\
-speed     & \tool          & \dadd{70} & \dadd{2410} & \dadd{75} & \dadd{6.83} & \dadd{$8.3\cdot 10^{-12}$} \\
-speed     & \tool transfer & \dadd{73} & \dadd{2677} & \dadd{24} & \dadd{7.29} & \dadd{$3.0\cdot 10^{-13}$} \\
+tightness & \tool          & 37 & 682 & 21 & 5.00 & $5.9\cdot 10^{-7}$ \\
+tightness & \tool transfer & 32 & 520 & 8 & 4.79 & $1.6\cdot 10^{-6}$ \\
+speed     & \tool          & 70 & 2410 & 75 & 6.83 & $8.3\cdot 10^{-12}$ \\
+speed     & \tool transfer & 73 & 2677 & 24 & 7.29 & $3.0\cdot 10^{-13}$ \\
 \bottomrule
 \end{tabular}
 \caption{Two-sided Wilcoxon signed-rank tests of \tool and \tool transfer
@@ -258,8 +254,7 @@ $c_s\in\{0,2\}$, and measure the precision loss, the execution time and
 the tightness $\dup-\dlo$. Figure~\ref{fig:n2-tau} shows the results.
 Up to $\tau=0.2$, no run finishes within the timeout. At $\tau=0.3$,
 only transfer mode finishes, on three instances. At $\tau=0.5$, both
-modes finish\dremove{, and with transfer $\dup-\dlo$ is at most $1\%$ in three
-instances}. At $\tau=0.7$, every instance finishes, but the precision
+modes finish. At $\tau=0.7$, every instance finishes, but the precision
 loss reaches $64\%$ of $\delta_{\max}$. We therefore use $\tau=0.5$.
 
 % BEGIN AUTO: aaai_n2_tau_tradeoff

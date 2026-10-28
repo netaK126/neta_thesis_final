@@ -117,7 +117,9 @@ perturbations of $x$ up to size $\ep$ by
   \label{eq:perturbation-set}
 \end{equation}
 The minimal globally robust bound $\delta^*$ is the minimum of the $\delta$ for which $N$ is $\delta$-globally robust. It equals its counterpart, the \emph{maximal non-robust bound}.%
-We define this bound as the maximum of $\hat{\delta}_{c_t}$ over all
+% TODO (Dana): Neta: in VHAGaR, the condition is $\geq$, which is why $\min$/$\max$ were correct. Here it is $>$, which needs $\sup$/$\inf$. I suggest switching to $\geq$ as in VHAGaR. If not, please change to $\sup$/$\inf$.
+% ANSWER (Neta): i double checked and in vahgar it is ">" (according to fig 5). i did change the definition of delta_c_t in " exact Verification" section.
+We define this bound as the \Dana{Neta, this says ``maximum'' but $\hat\delta_{c_t}$ below is a $\sup$. Should this be ``supremum'' as well?}\Neta{I switched these to $\sup$/$\inf$ following your earlier comment above, and I have now switched them back to $\max$/$\min$, so the text and the definitions agree.} maximum of $\hat{\delta}_{c_t}$ over all
 target classes $c_t \neq c$, where
 \begin{equation}
 \begin{aligned}
@@ -161,7 +163,7 @@ $x^{p} \in \mI_\ep(x)$ through constraints, for example in first-order
 logic~\citep{katz2019,katz2017reluplex} or in a mixed-integer
 linear program (MILP)~\citep{tjeng2019}. A solver then computes
 \[
-  \hat{\delta}_{c_t} = {\color{reviewblue}\text{\sout{sup}}}{\color{reviewpink}\max}\; \delta
+  \hat{\delta}_{c_t} = \max\; \delta
   \quad \text{subject to} \quad
   x,\, x^{p} \in \mI_\ep(x),\;
   \conf{N}{x}{c} \geq \delta,\;

@@ -19,7 +19,7 @@ perturbation-difference intervals and zonotope bounds, relaxes neurons
 with a novel conditional-triangle relaxation, and, in transfer mode,
 reuses a prior verification through difference bounds and warm-start
 hints. \tool speeds up \baseline by $7.6\times$ on
-average, and by \dremove{$12.4$}\dadd{$12.5$}$\times$ with transfer, on the instances
+average, and by $12.5\times$ with transfer, on the instances
 where at least one verifier terminates. On the
 hardest tasks, where all verifiers time out, it returns bounds
 $19.9\times$ tighter, and $20.9\times$
@@ -32,8 +32,7 @@ network with 500 neurons in one hidden layer, on which the bounds of
 \section{Small Perturbations}
 \label{sec:future-small-perturbations}
 
-\dremove{A small perturbation is not necessarily an easy one. Once a perturbation of any type is small enough, the two copies nearly coincide. \tool profits from this far less than it might: its per-neuron bounds are taken over the whole input domain, so the number of unstable neurons, and hence of binary variables, does not fall with the size of the perturbation. Moreover, existing work still encodes the network twice, even when the perturbed copy is nearly identical to the clean one. That closeness can be exploited instead.}
-\dadd{The first direction focuses on small perturbations, such as a brightness
+The first direction focuses on small perturbations, such as a brightness
 shift of $\ep{=}0.000001$. While this might seem simpler, it is not,
 since \tool's per-neuron bounds are taken over the whole input domain
 and do not tighten with~$\ep$, so the number of unstable neurons, and
@@ -41,7 +40,7 @@ hence of binary variables, does not fall with the size of the
 perturbation. However, once a perturbation of any type is small enough,
 the two copies nearly coincide, and existing work still encodes the
 network twice, even when the perturbed copy is nearly identical to the
-clean one. As a future direction, one can exploit this closeness:} once
+clean one. As a future direction, one can exploit this closeness: once
 the difference intervals are tight enough to stand in for the perturbed
 copy, \tool can encode the clean copy alone and replace each perturbed
 neuron by its difference interval. The program then carries binary variables for one copy rather
@@ -49,7 +48,7 @@ than two. The condition this leaves is necessary for
 $\conf{N}{x^{p}}{c_t}>0$ but not sufficient, so it over-approximates the
 feasible pairs. The upper bound $\dup$ therefore remains sound, and how
 much precision this costs for a small $\ep$ is left for future research.
-\section{\dremove{Verifying New Perturbations in Global Robustness Settings}\dadd{Supporting New Perturbation Types}}
+\section{Supporting New Perturbation Types}
 \label{sec:future-perturbations}
 
 \tool, and the verifiers we compare it to, support only a handful of
@@ -93,6 +92,6 @@ asks for less than stability. It needs only the normalized triangle area
 to be small, which is continuous where the sign is not, and is what the
 relaxation actually tests. Full stability over the whole domain would
 leave an affine map, so the target is a frontier rather than a goal: how
-many neurons can be \dremove{decided}\dadd{stable}, or how small their areas made, before the
+many neurons can be stable, or how small their areas made, before the
 accuracy goes.
 
